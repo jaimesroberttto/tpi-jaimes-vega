@@ -1,0 +1,275 @@
+GUION BASE PARA VIDEO DEMOSTRATIVO
+TRABAJO PRACTICO INTEGRADOR - PROGRAMACION 1
+
+TEMA:
+Gestion de Datos de Paises en Python: filtros, ordenamientos y estadisticas
+
+DURACION SUGERIDA:
+Entre 10 y 15 minutos
+
+
+1. PRESENTACION INICIAL
+
+Hola, somos Roberto Jaimes y Gabriel Vega.
+En este video vamos a presentar nuestro Trabajo Practico Integrador de Programacion 1,
+titulado "Gestion de Datos de Paises en Python: filtros, ordenamientos y estadisticas".
+
+El objetivo de este proyecto fue desarrollar una aplicacion en Python que trabaje con datos
+de paises a partir de un archivo CSV, permitiendo realizar altas, actualizaciones, busquedas,
+filtros, ordenamientos y calculo de estadisticas.
+
+
+2. EXPLICACION GENERAL DEL PROBLEMA
+
+La consigna nos pedia crear un sistema en consola que permita gestionar informacion sobre
+paises. Cada pais contiene los siguientes datos:
+
+- nombre
+- poblacion
+- superficie
+- continente
+
+La informacion se guarda en un archivo CSV y se carga al iniciar el programa.
+
+Nuestro sistema fue pensado para aplicar los conceptos vistos en la materia:
+
+- listas
+- diccionarios
+- funciones
+- condicionales
+- estructuras repetitivas
+- manejo de archivos CSV
+- filtros y ordenamientos
+- estadisticas
+
+
+3. ESTRUCTURA DEL PROYECTO
+
+Los archivos principales del proyecto son:
+
+- main_paises.py
+- funciones_paises.py
+- paises.csv
+- README
+- informe teorico
+
+En `main_paises.py` se encuentra el menu principal y la interaccion con el usuario.
+En `funciones_paises.py` esta toda la logica del sistema:
+
+- carga del CSV
+- guardado del CSV
+- validaciones
+- filtros
+- ordenamientos
+- estadisticas
+
+El archivo `paises.csv` contiene el dataset base con paises de ejemplo.
+
+
+4. EXPLICACION DE LA ESTRUCTURA DE DATOS
+
+Para representar la informacion utilizamos una lista de diccionarios.
+
+Cada pais se almacena como un diccionario con claves:
+
+- nombre
+- poblacion
+- superficie
+- continente
+
+La lista permite recorrer todos los paises facilmente, mientras que el diccionario permite
+acceder a cada dato de forma clara por nombre de campo.
+
+
+5. DEMOSTRACION DEL SISTEMA
+
+En esta parte del video conviene mostrar la consola en funcionamiento.
+
+5.1 Mostrar todos los paises
+
+Abrimos el programa y elegimos la opcion de mostrar todos los paises.
+Mostramos que el sistema lee correctamente el archivo CSV y presenta cada pais con sus datos.
+
+Frase sugerida:
+"Aqui podemos ver que el sistema carga correctamente la informacion desde el archivo CSV y la
+muestra en un formato claro para el usuario."
+
+
+5.2 Agregar un pais
+
+Elegimos la opcion para agregar un pais.
+Ingresamos un ejemplo, por ejemplo:
+
+- nombre: Peru
+- poblacion: 34000000
+- superficie: 1285216
+- continente: America
+
+Mostramos el mensaje de exito y luego volvemos a mostrar la lista para verificar que se agrego.
+
+Frase sugerida:
+"En esta opcion el sistema valida que no haya campos vacios y que los valores numericos sean
+correctos antes de guardar el nuevo pais."
+
+
+5.3 Actualizar un pais
+
+Seleccionamos la opcion de actualizar.
+Buscamos un pais existente y modificamos su poblacion o superficie.
+
+Frase sugerida:
+"Esta funcionalidad permite mantener actualizado el dataset, modificando solamente la
+poblacion y la superficie del pais elegido."
+
+
+5.4 Buscar por nombre
+
+Elegimos la opcion de busqueda.
+Probamos con una coincidencia parcial, por ejemplo:
+
+- "Arg"
+- "Bra"
+
+Mostramos que el sistema encuentra resultados parciales.
+
+Frase sugerida:
+"La busqueda no solo funciona con coincidencia exacta, sino tambien con coincidencia parcial,
+lo que mejora la experiencia del usuario."
+
+
+5.5 Filtrar paises
+
+Mostramos las tres opciones de filtro:
+
+- por continente
+- por rango de poblacion
+- por rango de superficie
+
+Conviene hacer al menos dos ejemplos.
+
+Ejemplo 1:
+Filtrar por continente: America
+
+Ejemplo 2:
+Filtrar por rango de poblacion entre 20000000 y 100000000
+
+Frase sugerida:
+"Los filtros permiten acotar la informacion y trabajar solo con los registros que cumplen una
+condicion determinada."
+
+
+5.6 Ordenar paises
+
+Mostramos al menos dos ordenamientos:
+
+- por nombre
+- por poblacion descendente
+
+Frase sugerida:
+"El sistema permite ordenar los paises segun distintos criterios, tanto en forma ascendente
+como descendente."
+
+
+5.7 Mostrar estadisticas
+
+Entramos a la opcion de estadisticas y mostramos:
+
+- pais con mayor poblacion
+- pais con menor poblacion
+- promedio de poblacion
+- promedio de superficie
+- cantidad de paises por continente
+
+Frase sugerida:
+"Estas estadisticas transforman el dataset en informacion util y permiten obtener una vision
+general del conjunto de paises cargados."
+
+
+6. VALIDACIONES Y MANEJO DE ERRORES
+
+En esta parte conviene mostrar rapidamente uno o dos errores controlados:
+
+- ingresar un valor vacio
+- ingresar texto donde se espera un numero
+- buscar un pais inexistente
+- ingresar un rango invalido
+
+Frase sugerida:
+"El sistema incluye validaciones para evitar errores de ingreso y mensajes claros para que el
+usuario sepa que ocurrio y como corregirlo."
+
+
+7. EXPLICACION TECNICA BREVE
+
+En este proyecto utilizamos:
+
+- listas de diccionarios para los datos en memoria
+- funciones para modularizar el programa
+- csv.DictReader para leer el archivo
+- csv.DictWriter para guardar el archivo
+- sorted() para realizar ordenamientos
+- condicionales y bucles para controlar el flujo del menu
+
+Tambien incorporamos validaciones de entradas y control de lineas invalidas en el archivo CSV.
+
+
+8. DIFICULTADES ENCONTRADAS
+
+Ejemplo de texto que pueden adaptar:
+
+"Durante el desarrollo una de las principales dificultades fue decidir como organizar la
+informacion de los paises. Finalmente optamos por usar una lista de diccionarios porque nos
+resulto clara, flexible y adecuada para aplicar filtros y ordenamientos.
+
+Otra dificultad fue validar correctamente los datos del usuario y asegurar que el programa no
+se rompiera si el archivo CSV tenia errores. Eso lo resolvimos agregando validaciones y manejo
+seguro de la lectura del archivo."
+
+
+9. CIERRE Y CONCLUSION
+
+Para cerrar, podemos decir:
+
+"En conclusion, este trabajo nos permitio integrar varios contenidos fundamentales de
+Programacion 1 en un solo proyecto practico. Aplicamos estructuras de datos, modularizacion,
+manejo de archivos CSV, validaciones, filtros, ordenamientos y estadisticas.
+
+Consideramos que el sistema cumple con los requisitos pedidos en la consigna y nos ayudo a
+comprender mejor como construir una aplicacion completa en Python."
+
+
+10. RECOMENDACIONES PARA GRABAR
+
+- Mostrar al inicio a ambos integrantes en camara, aunque sea brevemente.
+- Hablar turnandose para que se note la participacion de los dos.
+- No leer de forma mecanica: usar este guion como apoyo.
+- Tener abierto el proyecto antes de grabar.
+- Probar antes todos los flujos del programa.
+- Preparar ejemplos de entrada para que el video sea fluido.
+- Mantener una duracion aproximada de 10 a 15 minutos.
+
+
+11. REPARTO SUGERIDO ENTRE INTEGRANTES
+
+Integrante 1:
+- Presentacion inicial
+- Explicacion del problema
+- Estructura del proyecto
+- Mostrar altas y busquedas
+
+Integrante 2:
+- Explicar estructura de datos
+- Mostrar filtros, ordenamientos y estadisticas
+- Explicar validaciones y dificultades
+- Cierre final
+
+
+12. CHECKLIST FINAL ANTES DE GRABAR
+
+- Ambos integrantes aparecen al inicio.
+- El repositorio esta listo.
+- El CSV esta incluido.
+- El programa ejecuta sin errores.
+- El video dura entre 10 y 15 minutos.
+- Se explican teoria y funcionamiento.
+- Se muestran todos los flujos principales.
