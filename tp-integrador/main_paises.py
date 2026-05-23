@@ -1,5 +1,6 @@
 from funciones_paises import *
 
+# enviar al archivo funciones
 def menu_busqueda(paises):
     print("\n--- Buscar pais por nombre ---")
     nombre = pedir_texto_no_vacio("Ingrese el nombre o parte del nombre: ")
@@ -11,7 +12,7 @@ def menu_busqueda(paises):
 
     mostrar_paises(resultados, "Resultados de la busqueda")
 
-
+# enviar al archivo funciones
 def menu_filtros(paises):
     while True:
         print("\n--- Filtros ---")
@@ -54,8 +55,10 @@ def menu_filtros(paises):
         else:
             break
 
-
+# enviar al archivo funciones
 def menu_ordenamientos(paises):
+    # tenga menu principal con poblacion, superficie y nombre
+    # submenu con ascendente y descendente
     while True:
         print("\n--- Ordenamientos ---")
         print("1. Ordenar por nombre ascendente")

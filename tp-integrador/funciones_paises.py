@@ -116,6 +116,7 @@ def cargar_paises():
         for fila in lector:
             try:
                 pais = {
+                    # validar solo letras en poblacion pais y continente
                     "nombre": normalizar_texto(fila["nombre"]),
                     "poblacion": int(fila["poblacion"]),
                     "superficie": int(fila["superficie"]),
@@ -154,6 +155,7 @@ def existe_pais(paises, nombre):
 
 
 def buscar_pais_exacto(paises, nombre):
+    # ante una falla volver a pedir
     nombre_buscado = nombre.lower()
     for pais in paises:
         if pais["nombre"].lower() == nombre_buscado:
@@ -196,6 +198,7 @@ def agregar_pais(paises):
 
 def actualizar_pais(paises):
     print("\n--- Actualizar pais ---")
+    # 
     nombre = pedir_texto_no_vacio("Ingrese el nombre del pais: ")
     pais = buscar_pais_exacto(paises, nombre)
 
@@ -205,8 +208,9 @@ def actualizar_pais(paises):
 
     print("Pais encontrado:")
     print(formatear_pais(pais))
-
+    #debe permitirme poder no actualizar la poblacion
     pais["poblacion"] = pedir_entero("Nueva poblacion: ", 1)
+    #debe permitirme poder no actualizar la superficie
     pais["superficie"] = pedir_entero("Nueva superficie en km2: ", 1)
     guardar_paises(paises)
     print("Datos actualizados correctamente.")
@@ -227,6 +231,7 @@ def filtrar_por_rango_superficie(paises, minimo, maximo):
 
 
 def ordenar_paises(paises, criterio, descendente=False):
+    # Ordenamiento por burbuja
     if criterio == "nombre":
         return sorted(paises, key=lambda pais: pais["nombre"].lower(), reverse=descendente)
     if criterio == "poblacion":
@@ -239,7 +244,7 @@ def ordenar_paises(paises, criterio, descendente=False):
 def obtener_estadisticas(paises):
     if not paises:
         return None
-
+    # ordenamiento por burbuja
     pais_mayor_poblacion = max(paises, key=lambda pais: pais["poblacion"])
     pais_menor_poblacion = min(paises, key=lambda pais: pais["poblacion"])
     promedio_poblacion = sum(pais["poblacion"] for pais in paises) / len(paises)
