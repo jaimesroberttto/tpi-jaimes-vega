@@ -1,10 +1,15 @@
 import csv
 import os
+import questionary
 
 CARPETA_ACTUAL = os.path.dirname(os.path.abspath(__file__))
 RUTA_CSV = os.path.join(CARPETA_ACTUAL, "paises.csv")
 CAMPOS = ["nombre", "poblacion", "superficie", "continente"]
 
+class NombreErroneoError(Exception):
+    pass
+class SaliendoAlMenuError(Exception):
+    pass
 
 def crear_csv_base():
     with open(RUTA_CSV, "w", newline="", encoding="utf-8") as archivo:
@@ -79,21 +84,25 @@ def pedir_texto_no_vacio(mensaje):
         texto = normalizar_texto(input(mensaje))
         if texto != "":
             return texto
-        print("Error: el valor no puede estar vacio.")
+        elif texto.lower() == "s" or texto.lower() == "salir":
+            raise SaliendoAlMenuError("Saliendo al menú principal.")
+        else:
+            print("Error: el texto no puede estar vacío.")
 
 
 def pedir_entero(mensaje, minimo=None):
     while True:
         dato = input(mensaje).strip()
-        if dato.isdigit():
+        if dato.lower() == "s" or dato.lower() == "salir":
+            raise SaliendoAlMenuError("Saliendo al menú principal.")
+        try:
             numero = int(dato)
             if minimo is None or numero >= minimo:
                 return numero
-
-        if minimo is None:
-            print("Error: debe ingresar un numero entero valido.")
-        else:
-            print(f"Error: debe ingresar un numero entero mayor o igual a {minimo}.")
+            else:
+                print(f"Error: El número debe ser mayor o igual a {minimo}.")
+        except ValueError:
+            print("Error: Debe ingresar un número entero válido.")
 
 
 def pedir_opcion(minimo, maximo):
@@ -155,12 +164,15 @@ def existe_pais(paises, nombre):
 
 
 def buscar_pais_exacto(paises, nombre):
-    # ante una falla volver a pedir
-    nombre_buscado = nombre.lower()
-    for pais in paises:
-        if pais["nombre"].lower() == nombre_buscado:
-            return pais
-    return None
+    while True:
+        nombre_buscado = nombre.lower()
+        for pais in paises:
+            if pais["nombre"].lower() == nombre_buscado:
+                return pais
+        print("Error: no se encontro un pais con ese nombre. Intente nuevamente o ingrese s |'salir' para cancelar.")
+        nombre = input("Nombre del pais: ").strip()
+        if nombre.lower() == "salir" or nombre.lower() == "s":
+            return None
 
 
 def buscar_pais_por_nombre(paises, nombre):
@@ -174,47 +186,74 @@ def buscar_pais_por_nombre(paises, nombre):
 
 def agregar_pais(paises):
     print("\n--- Agregar pais ---")
-    nombre = pedir_texto_no_vacio("Nombre: ")
+    
+    try:
+        nombre = pedir_texto_no_vacio("Ingrese el nombre o 's' para salir: ").strip().capitalize()
 
-    if existe_pais(paises, nombre):
-        print("Error: ese pais ya existe en el sistema.")
+        if existe_pais(paises, nombre):
+            print("Error: ese pais ya existe en el sistema.")
+            return False
+        if not nombre.isalpha():
+            raise NombreErroneoError ("Error: el nombre del pais solo puede contener letras. Volviendo al menú principal.")
+        
+        poblacion = pedir_entero("Ingrese poblacion o 's' para salir: ", 1)
+        superficie = pedir_entero("Ingrese Superficie en km2 o 's' para salir: ", 1)
+        continente = pedir_texto_no_vacio("Ingrese el continente o 's' para salir: ")
+        if not continente.isalpha():
+            raise NombreErroneoError ("Error: el nombre del continente solo puede contener letras. Volviendo al menú principal.")
+
+        pais = {
+            "nombre": nombre,
+            "poblacion": poblacion,
+            "superficie": superficie,
+            "continente": continente,
+        }
+        paises.append(pais)
+        guardar_paises(paises)
+        print("Pais agregado correctamente.")
+        return True
+    
+    except NombreErroneoError as e:
+        print(e)
         return False
-
-    poblacion = pedir_entero("Poblacion: ", 1)
-    superficie = pedir_entero("Superficie en km2: ", 1)
-    continente = pedir_texto_no_vacio("Continente: ")
-
-    pais = {
-        "nombre": nombre,
-        "poblacion": poblacion,
-        "superficie": superficie,
-        "continente": continente,
-    }
-    paises.append(pais)
-    guardar_paises(paises)
-    print("Pais agregado correctamente.")
-    return True
+    
+    except SaliendoAlMenuError as e:
+        print(e)
+        return False
 
 
 def actualizar_pais(paises):
     print("\n--- Actualizar pais ---")
     # 
-    nombre = pedir_texto_no_vacio("Ingrese el nombre del pais: ")
+    nombre = pedir_texto_no_vacio("Ingrese el nombre del pais: ").strip()
     pais = buscar_pais_exacto(paises, nombre)
 
     if pais is None:
-        print("Error: no se encontro un pais con ese nombre.")
+        print("Volviendo al menú principal.")
         return False
 
     print("Pais encontrado:")
     print(formatear_pais(pais))
-    #debe permitirme poder no actualizar la poblacion
-    pais["poblacion"] = pedir_entero("Nueva poblacion: ", 1)
-    #debe permitirme poder no actualizar la superficie
-    pais["superficie"] = pedir_entero("Nueva superficie en km2: ", 1)
-    guardar_paises(paises)
-    print("Datos actualizados correctamente.")
-    return True
+    while True:
+            opcion = questionary.select(
+            message="Elija la acción a realizar:",
+            choices=["Modificar población", "Modificar superficie","Modificar ambos", "Salir"]
+            ).ask()
+            
+            if opcion == "Salir":
+                print("No se realizaron cambios.")
+                return True
+            elif opcion == "Modificar población":
+                pais["poblacion"] = pedir_entero("Ingrese la nueva poblacion o 's' para salir: ", 1)
+            elif opcion == "Modificar superficie":
+                pais["superficie"] = pedir_entero("Ingrese la nueva superficie en km2 o 's' para salir: ", 1)
+            elif opcion == "Modificar ambos":
+                pais["poblacion"] = pedir_entero("Ingrese la nueva poblacion o 's' para salir: ", 1)
+                pais["superficie"] = pedir_entero("Ingrese la nueva superficie en km2 o 's' para salir: ", 1)
+            
+            guardar_paises(paises)
+            print("Datos actualizados correctamente.")
+            return True
 
 
 def filtrar_por_continente(paises, continente):
@@ -231,22 +270,91 @@ def filtrar_por_rango_superficie(paises, minimo, maximo):
 
 
 def ordenar_paises(paises, criterio, descendente=False):
-    # Ordenamiento por burbuja
+    n = len(paises)
+    paises_ordenados = list(paises)
+    
     if criterio == "nombre":
-        return sorted(paises, key=lambda pais: pais["nombre"].lower(), reverse=descendente)
-    if criterio == "poblacion":
-        return sorted(paises, key=lambda pais: pais["poblacion"], reverse=descendente)
-    if criterio == "superficie":
-        return sorted(paises, key=lambda pais: pais["superficie"], reverse=descendente)
-    return paises[:]
+        opcion = questionary.select(
+        message="Elija Ascendente o Descendente:",
+        choices=["Ascendente", "Descendente"]
+        ).ask()
+        
+        if opcion == "Ascendente":
+            for i in range(n - 1):
+                for j in range(n - 1 - i):
+                    nombre_actual = paises_ordenados[j]["nombre"].lower()
+                    nombre_siguiente = paises_ordenados[j+1]["nombre"].lower()
+                    if nombre_actual > nombre_siguiente:
+                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
+        
+        elif opcion == "Descendente":
+            for i in range(n - 1):
+                for j in range(n - 1 - i):
+                    nombre_actual = paises_ordenados[j]["nombre"].lower()
+                    nombre_siguiente = paises_ordenados[j+1]["nombre"].lower()
+                    if nombre_actual < nombre_siguiente:
+                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
 
+    elif criterio == "poblacion":
+        opcion = questionary.select(
+        message="Elija Ascendente o Descendente:",
+        choices=["Ascendente", "Descendente"]
+        ).ask()
+        
+        if opcion == "Ascendente":
+            for i in range(n - 1):
+                for j in range(n - 1 - i):
+                    nombre_actual = paises_ordenados[j]["poblacion"].lower()
+                    nombre_siguiente = paises_ordenados[j+1]["poblacion"].lower()
+                    if nombre_actual > nombre_siguiente:
+                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
+        
+        elif opcion == "Descendente":
+            for i in range(n - 1):
+                for j in range(n - 1 - i):
+                    nombre_actual = paises_ordenados[j]["poblacion"].lower()
+                    nombre_siguiente = paises_ordenados[j+1]["poblacion"].lower()
+                    if nombre_actual < nombre_siguiente:
+                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
+    
+    elif criterio == "superficie":
+        opcion = questionary.select(
+        message="Elija Ascendente o Descendente:",
+        choices=["Ascendente", "Descendente"]
+        ).ask()
+        
+        if opcion == "Ascendente":
+            for i in range(n - 1):
+                for j in range(n - 1 - i):
+                    nombre_actual = paises_ordenados[j]["superficie"].lower()
+                    nombre_siguiente = paises_ordenados[j+1]["superficie"].lower()
+                    if nombre_actual > nombre_siguiente:
+                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
+        
+        elif opcion == "Descendente":
+            for i in range(n - 1):
+                for j in range(n - 1 - i):
+                    nombre_actual = paises_ordenados[j]["superficie"].lower()
+                    nombre_siguiente = paises_ordenados[j+1]["superficie"].lower()
+                    if nombre_actual < nombre_siguiente:
+                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
+    
+    return paises_ordenados
 
 def obtener_estadisticas(paises):
     if not paises:
         return None
-    # ordenamiento por burbuja
-    pais_mayor_poblacion = max(paises, key=lambda pais: pais["poblacion"])
-    pais_menor_poblacion = min(paises, key=lambda pais: pais["poblacion"])
+    pais_mayor_poblacion = paises[0]
+    pais_menor_poblacion = paises[0]
+    
+    for i in range(1, len(paises)):
+        pais_actual = paises[i]
+        if pais_actual["poblacion"] > pais_mayor_poblacion["poblacion"]:
+            pais_mayor_poblacion = pais_actual
+       
+        if pais_actual["poblacion"] < pais_menor_poblacion["poblacion"]:
+            pais_menor_poblacion = pais_actual
+    
     promedio_poblacion = sum(pais["poblacion"] for pais in paises) / len(paises)
     promedio_superficie = sum(pais["superficie"] for pais in paises) / len(paises)
 
@@ -309,3 +417,159 @@ def mostrar_estadisticas(paises):
     print("\nCantidad de paises por continente:")
     for continente, cantidad in estadisticas["cantidad_por_continente"].items():
         print(f"{continente}: {cantidad}")
+
+def menu_busqueda(paises):
+    print("\n--- Buscar pais por nombre ---")
+    nombre = pedir_texto_no_vacio("Ingrese el nombre o parte del nombre: ")
+    resultados = buscar_pais_por_nombre(paises, nombre)
+    if not resultados:
+        print("No se encontraron paises con esa busqueda.")
+        return
+
+    mostrar_paises(resultados, "Resultados de la busqueda")
+
+def menu_filtros(paises):
+    while True:
+        print("\n--- Filtros ---")
+        print("1. Filtrar por continente")
+        print("2. Filtrar por rango de poblacion")
+        print("3. Filtrar por rango de superficie")
+        print("4. Volver")
+        opcion = pedir_opcion(1, 4)
+
+        if opcion == 1:
+            continente = pedir_texto_no_vacio("Ingrese el continente: ")
+            resultados = filtrar_por_continente(paises, continente)
+            if resultados:
+                mostrar_paises(resultados, f"Paises del continente {continente}")
+            else:
+                print("No se encontraron paises para ese continente.")
+            pausar()
+        elif opcion == 2:
+            minimo, maximo = pedir_rango(
+                "Ingrese la poblacion minima: ",
+                "Ingrese la poblacion maxima: ",
+            )
+            resultados = filtrar_por_rango_poblacion(paises, minimo, maximo)
+            if resultados:
+                mostrar_paises(resultados, "Paises filtrados por poblacion")
+            else:
+                print("No se encontraron paises en ese rango de poblacion.")
+            pausar()
+        elif opcion == 3:
+            minimo, maximo = pedir_rango(
+                "Ingrese la superficie minima: ",
+                "Ingrese la superficie maxima: ",
+            )
+            resultados = filtrar_por_rango_superficie(paises, minimo, maximo)
+            if resultados:
+                mostrar_paises(resultados, "Paises filtrados por superficie")
+            else:
+                print("No se encontraron paises en ese rango de superficie.")
+            pausar()
+        else:
+            break
+
+def menu_ordenamientos(paises):
+    
+    while True:
+        print("\n--- Ordenamientos ---")
+        opcion = questionary.select(
+        message="Elija el método de ordenamiento: ",
+        choices=["Por nombre", "Por poblacion","Por superficie", "Salir"]
+        ).ask()
+        print(f"Elegiste: {opcion}")
+        
+
+        if opcion == "Por nombre":
+            as_des = questionary.select(
+            message="Elija el tipo de ordenamiento: ",
+            choices=["Ascendente", "Descendente"]
+            ).ask()
+            print(f"Elegiste: {opcion}")
+            if as_des == "Ascendente":
+                mostrar_paises(ordenar_paises(paises, "nombre"), "Paises ordenados por nombre")
+                pausar()
+            elif as_des == "Descendente":
+                mostrar_paises(
+                    ordenar_paises(paises, "nombre", True),
+                    "Paises ordenados por nombre descendente",)
+                pausar()
+            
+        elif opcion == "Por poblacion":
+            as_des = questionary.select(
+            message="Elija el tipo de ordenamiento: ",
+            choices=["Ascendente", "Descendente"]
+            ).ask()
+            print(f"Elegiste: {opcion}")
+            if as_des == "Ascendente":
+                mostrar_paises(ordenar_paises(paises, "poblacion"), "Paises ordenados por poblacion")
+                pausar()
+            elif as_des == "Descendente":
+                mostrar_paises(
+                    ordenar_paises(paises, "poblacion", True),
+                    "Paises ordenados por poblacion descendente",
+                )
+                pausar()
+        elif opcion == "Por superficie":
+            as_des = questionary.select(
+            message="Elija el tipo de ordenamiento: ",
+            choices=["Ascendente", "Descendente"]
+            ).ask()
+            print(f"Elegiste: {opcion}")
+            if as_des == "Ascendente":
+                mostrar_paises(ordenar_paises(paises, "superficie"), "Paises ordenados por superficie")
+                pausar()
+            elif as_des == "Descendente":
+                mostrar_paises(
+                    ordenar_paises(paises, "superficie", True),
+                    "Paises ordenados por superficie descendente",
+                )
+                pausar()
+        elif opcion == "Salir":
+            break
+
+
+def mostrar_menu_principal():
+    print("\n=== Gestion de Datos de Paises ===")
+    opcion = questionary.select(
+    message="Seleccioná:",
+    choices=["Mostrar todos los paises", "Agregar un pais", "Actualizar poblacion y superficie", 
+             "Buscar pais por nombre", "Filtrar paises", "Ordenar paises", "Mostrar estadisticas", "Salir"]
+            ).ask()
+    return opcion
+
+
+def main():
+    paises, lineas_invalidas = cargar_paises()
+
+    if lineas_invalidas > 0:
+        print(
+            f"Advertencia: se ignoraron {lineas_invalidas} lineas invalidas del archivo CSV."
+        )
+
+    while True:
+        opcion = mostrar_menu_principal()
+
+        if opcion == "Mostrar todos los paises":
+            mostrar_paises(paises, "Listado completo de paises")
+            pausar()
+        elif opcion == "Agregar un pais":
+            agregar_pais(paises)
+            pausar()
+        elif opcion == "Actualizar poblacion y superficie":
+            actualizar_pais(paises)
+            pausar()
+        elif opcion == "Buscar pais por nombre":
+            menu_busqueda(paises)
+            pausar()
+        elif opcion == "Filtrar paises":
+            menu_filtros(paises)
+        elif opcion == "Ordenar paises":
+            menu_ordenamientos(paises)
+        elif opcion == "Mostrar estadisticas":
+            mostrar_estadisticas(paises)
+            pausar()
+        elif opcion == "Salir":
+            print("Programa finalizado.")
+            break
