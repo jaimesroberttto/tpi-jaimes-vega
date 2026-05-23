@@ -15,10 +15,6 @@ def crear_csv_base():
         )
 
 
-def normalizar_texto(texto):
-    return " ".join(texto.strip().split())
-
-
 def pedir_texto_no_vacio(mensaje):
     while True:
         texto = normalizar_texto(input(mensaje))
