@@ -11,62 +11,7 @@ def crear_csv_base():
         escritor = csv.DictWriter(archivo, fieldnames=CAMPOS)
         escritor.writeheader()
         escritor.writerows(
-            [
-                {
-                    "nombre": "Argentina",
-                    "poblacion": 45376763,
-                    "superficie": 2780400,
-                    "continente": "America",
-                },
-                {
-                    "nombre": "Brasil",
-                    "poblacion": 213993437,
-                    "superficie": 8515767,
-                    "continente": "America",
-                },
-                {
-                    "nombre": "Chile",
-                    "poblacion": 19603733,
-                    "superficie": 756102,
-                    "continente": "America",
-                },
-                {
-                    "nombre": "Alemania",
-                    "poblacion": 83149300,
-                    "superficie": 357022,
-                    "continente": "Europa",
-                },
-                {
-                    "nombre": "Espana",
-                    "poblacion": 48345000,
-                    "superficie": 505990,
-                    "continente": "Europa",
-                },
-                {
-                    "nombre": "Japon",
-                    "poblacion": 125800000,
-                    "superficie": 377975,
-                    "continente": "Asia",
-                },
-                {
-                    "nombre": "India",
-                    "poblacion": 1428627663,
-                    "superficie": 3287263,
-                    "continente": "Asia",
-                },
-                {
-                    "nombre": "Egipto",
-                    "poblacion": 112716598,
-                    "superficie": 1002450,
-                    "continente": "Africa",
-                },
-                {
-                    "nombre": "Australia",
-                    "poblacion": 26600000,
-                    "superficie": 7692024,
-                    "continente": "Oceania",
-                },
-            ]
+            []
         )
 
 
