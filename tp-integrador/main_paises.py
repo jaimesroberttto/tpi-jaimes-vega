@@ -5,7 +5,6 @@ def menu_busqueda(paises):
     print("\n--- Buscar pais por nombre ---")
     nombre = pedir_texto_no_vacio("Ingrese el nombre o parte del nombre: ")
     resultados = buscar_pais_por_nombre(paises, nombre)
-
     if not resultados:
         print("No se encontraron paises con esa busqueda.")
         return
@@ -13,6 +12,7 @@ def menu_busqueda(paises):
     mostrar_paises(resultados, "Resultados de la busqueda")
 
 # enviar al archivo funciones
+#asdasd
 def menu_filtros(paises):
     while True:
         print("\n--- Filtros ---")
