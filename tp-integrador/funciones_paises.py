@@ -82,10 +82,10 @@ def normalizar_texto(texto):
 def pedir_texto_no_vacio(mensaje):
     while True:
         texto = normalizar_texto(input(mensaje))
-        if texto != "":
-            return texto
-        elif texto.lower() == "s" or texto.lower() == "salir":
+        if texto.lower() == "s" or texto.lower() == "salir":
             raise SaliendoAlMenuError("Saliendo al menú principal.")
+        elif texto != "":
+            return texto
         else:
             print("Error: el texto no puede estar vacío.")
 
@@ -224,17 +224,17 @@ def agregar_pais(paises):
 
 def actualizar_pais(paises):
     print("\n--- Actualizar pais ---")
-    # 
-    nombre = pedir_texto_no_vacio("Ingrese el nombre del pais: ").strip()
-    pais = buscar_pais_exacto(paises, nombre)
+    try:
+        nombre = pedir_texto_no_vacio("Ingrese el nombre del pais: ").strip()
+        pais = buscar_pais_exacto(paises, nombre)
 
-    if pais is None:
-        print("Volviendo al menú principal.")
-        return False
+        if pais is None:
+            print("Volviendo al menú principal.")
+            return False
 
-    print("Pais encontrado:")
-    print(formatear_pais(pais))
-    while True:
+        print("Pais encontrado:")
+        print(formatear_pais(pais))
+        while True:
             opcion = questionary.select(
             message="Elija la acción a realizar:",
             choices=["Modificar población", "Modificar superficie","Modificar ambos", "Salir"]
@@ -244,16 +244,23 @@ def actualizar_pais(paises):
                 print("No se realizaron cambios.")
                 return True
             elif opcion == "Modificar población":
-                pais["poblacion"] = pedir_entero("Ingrese la nueva poblacion o 's' para salir: ", 1)
+                nueva_poblacion = pedir_entero("Ingrese la nueva poblacion o 's' para salir: ", 1)
+                pais["poblacion"] = nueva_poblacion
             elif opcion == "Modificar superficie":
-                pais["superficie"] = pedir_entero("Ingrese la nueva superficie en km2 o 's' para salir: ", 1)
+                nueva_superficie = pedir_entero("Ingrese la nueva superficie en km2 o 's' para salir: ", 1)
+                pais["superficie"] = nueva_superficie
             elif opcion == "Modificar ambos":
-                pais["poblacion"] = pedir_entero("Ingrese la nueva poblacion o 's' para salir: ", 1)
-                pais["superficie"] = pedir_entero("Ingrese la nueva superficie en km2 o 's' para salir: ", 1)
+                nueva_poblacion = pedir_entero("Ingrese la nueva poblacion o 's' para salir: ", 1)
+                nueva_superficie = pedir_entero("Ingrese la nueva superficie en km2 o 's' para salir: ", 1)
+                pais["poblacion"] = nueva_poblacion
+                pais["superficie"] = nueva_superficie
             
             guardar_paises(paises)
             print("Datos actualizados correctamente.")
             return True
+    except SaliendoAlMenuError as e:
+        print(e)
+        return False
 
 
 def filtrar_por_continente(paises, continente):
@@ -274,70 +281,34 @@ def ordenar_paises(paises, criterio, descendente=False):
     paises_ordenados = list(paises)
     
     if criterio == "nombre":
-        opcion = questionary.select(
-        message="Elija Ascendente o Descendente:",
-        choices=["Ascendente", "Descendente"]
-        ).ask()
-        
-        if opcion == "Ascendente":
-            for i in range(n - 1):
-                for j in range(n - 1 - i):
-                    nombre_actual = paises_ordenados[j]["nombre"].lower()
-                    nombre_siguiente = paises_ordenados[j+1]["nombre"].lower()
-                    if nombre_actual > nombre_siguiente:
-                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
-        
-        elif opcion == "Descendente":
-            for i in range(n - 1):
-                for j in range(n - 1 - i):
-                    nombre_actual = paises_ordenados[j]["nombre"].lower()
-                    nombre_siguiente = paises_ordenados[j+1]["nombre"].lower()
-                    if nombre_actual < nombre_siguiente:
-                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
+        for i in range(n - 1):
+            for j in range(n - 1 - i):
+                valor_actual = paises_ordenados[j]["nombre"].lower()
+                valor_siguiente = paises_ordenados[j + 1]["nombre"].lower()
+                if (not descendente and valor_actual > valor_siguiente) or (
+                    descendente and valor_actual < valor_siguiente
+                ):
+                    paises_ordenados[j], paises_ordenados[j + 1] = paises_ordenados[j + 1], paises_ordenados[j]
 
     elif criterio == "poblacion":
-        opcion = questionary.select(
-        message="Elija Ascendente o Descendente:",
-        choices=["Ascendente", "Descendente"]
-        ).ask()
-        
-        if opcion == "Ascendente":
-            for i in range(n - 1):
-                for j in range(n - 1 - i):
-                    nombre_actual = paises_ordenados[j]["poblacion"].lower()
-                    nombre_siguiente = paises_ordenados[j+1]["poblacion"].lower()
-                    if nombre_actual > nombre_siguiente:
-                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
-        
-        elif opcion == "Descendente":
-            for i in range(n - 1):
-                for j in range(n - 1 - i):
-                    nombre_actual = paises_ordenados[j]["poblacion"].lower()
-                    nombre_siguiente = paises_ordenados[j+1]["poblacion"].lower()
-                    if nombre_actual < nombre_siguiente:
-                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
+        for i in range(n - 1):
+            for j in range(n - 1 - i):
+                valor_actual = paises_ordenados[j]["poblacion"]
+                valor_siguiente = paises_ordenados[j + 1]["poblacion"]
+                if (not descendente and valor_actual > valor_siguiente) or (
+                    descendente and valor_actual < valor_siguiente
+                ):
+                    paises_ordenados[j], paises_ordenados[j + 1] = paises_ordenados[j + 1], paises_ordenados[j]
     
     elif criterio == "superficie":
-        opcion = questionary.select(
-        message="Elija Ascendente o Descendente:",
-        choices=["Ascendente", "Descendente"]
-        ).ask()
-        
-        if opcion == "Ascendente":
-            for i in range(n - 1):
-                for j in range(n - 1 - i):
-                    nombre_actual = paises_ordenados[j]["superficie"].lower()
-                    nombre_siguiente = paises_ordenados[j+1]["superficie"].lower()
-                    if nombre_actual > nombre_siguiente:
-                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
-        
-        elif opcion == "Descendente":
-            for i in range(n - 1):
-                for j in range(n - 1 - i):
-                    nombre_actual = paises_ordenados[j]["superficie"].lower()
-                    nombre_siguiente = paises_ordenados[j+1]["superficie"].lower()
-                    if nombre_actual < nombre_siguiente:
-                        paises_ordenados[j], paises_ordenados[j+1] = paises_ordenados[j+1], paises_ordenados[j]
+        for i in range(n - 1):
+            for j in range(n - 1 - i):
+                valor_actual = paises_ordenados[j]["superficie"]
+                valor_siguiente = paises_ordenados[j + 1]["superficie"]
+                if (not descendente and valor_actual > valor_siguiente) or (
+                    descendente and valor_actual < valor_siguiente
+                ):
+                    paises_ordenados[j], paises_ordenados[j + 1] = paises_ordenados[j + 1], paises_ordenados[j]
     
     return paises_ordenados
 
@@ -420,13 +391,16 @@ def mostrar_estadisticas(paises):
 
 def menu_busqueda(paises):
     print("\n--- Buscar pais por nombre ---")
-    nombre = pedir_texto_no_vacio("Ingrese el nombre o parte del nombre: ")
-    resultados = buscar_pais_por_nombre(paises, nombre)
-    if not resultados:
-        print("No se encontraron paises con esa busqueda.")
-        return
+    try:
+        nombre = pedir_texto_no_vacio("Ingrese el nombre o parte del nombre: ")
+        resultados = buscar_pais_por_nombre(paises, nombre)
+        if not resultados:
+            print("No se encontraron paises con esa busqueda.")
+            return
 
-    mostrar_paises(resultados, "Resultados de la busqueda")
+        mostrar_paises(resultados, "Resultados de la busqueda")
+    except SaliendoAlMenuError as e:
+        print(e)
 
 def menu_filtros(paises):
     while True:
@@ -438,35 +412,44 @@ def menu_filtros(paises):
         opcion = pedir_opcion(1, 4)
 
         if opcion == 1:
-            continente = pedir_texto_no_vacio("Ingrese el continente: ")
-            resultados = filtrar_por_continente(paises, continente)
-            if resultados:
-                mostrar_paises(resultados, f"Paises del continente {continente}")
-            else:
-                print("No se encontraron paises para ese continente.")
-            pausar()
+            try:
+                continente = pedir_texto_no_vacio("Ingrese el continente: ")
+                resultados = filtrar_por_continente(paises, continente)
+                if resultados:
+                    mostrar_paises(resultados, f"Paises del continente {continente}")
+                else:
+                    print("No se encontraron paises para ese continente.")
+                pausar()
+            except SaliendoAlMenuError as e:
+                print(e)
         elif opcion == 2:
-            minimo, maximo = pedir_rango(
-                "Ingrese la poblacion minima: ",
-                "Ingrese la poblacion maxima: ",
-            )
-            resultados = filtrar_por_rango_poblacion(paises, minimo, maximo)
-            if resultados:
-                mostrar_paises(resultados, "Paises filtrados por poblacion")
-            else:
-                print("No se encontraron paises en ese rango de poblacion.")
-            pausar()
+            try:
+                minimo, maximo = pedir_rango(
+                    "Ingrese la poblacion minima: ",
+                    "Ingrese la poblacion maxima: ",
+                )
+                resultados = filtrar_por_rango_poblacion(paises, minimo, maximo)
+                if resultados:
+                    mostrar_paises(resultados, "Paises filtrados por poblacion")
+                else:
+                    print("No se encontraron paises en ese rango de poblacion.")
+                pausar()
+            except SaliendoAlMenuError as e:
+                print(e)
         elif opcion == 3:
-            minimo, maximo = pedir_rango(
-                "Ingrese la superficie minima: ",
-                "Ingrese la superficie maxima: ",
-            )
-            resultados = filtrar_por_rango_superficie(paises, minimo, maximo)
-            if resultados:
-                mostrar_paises(resultados, "Paises filtrados por superficie")
-            else:
-                print("No se encontraron paises en ese rango de superficie.")
-            pausar()
+            try:
+                minimo, maximo = pedir_rango(
+                    "Ingrese la superficie minima: ",
+                    "Ingrese la superficie maxima: ",
+                )
+                resultados = filtrar_por_rango_superficie(paises, minimo, maximo)
+                if resultados:
+                    mostrar_paises(resultados, "Paises filtrados por superficie")
+                else:
+                    print("No se encontraron paises en ese rango de superficie.")
+                pausar()
+            except SaliendoAlMenuError as e:
+                print(e)
         else:
             break
 
