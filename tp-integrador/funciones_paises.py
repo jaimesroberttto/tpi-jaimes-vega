@@ -1,20 +1,16 @@
 import csv
 import os
 import questionary
-import sys
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
 
 
 
 CARPETA_ACTUAL = os.path.dirname(os.path.abspath(__file__))
 RUTA_CSV = os.path.join(CARPETA_ACTUAL, "paises.csv")
 CAMPOS = ["nombre", "poblacion", "superficie", "continente"]
-
-VERDE = "\033[1;32m"
-ROJO = "\033[1;31m"
-AMARILLO = "\033[1;33m"
-AZUL = "\033[1;34m"
-CYAN = "\033[1;36m"
-RESET = "\033[0m"
+console = Console()
 
 class NombreErroneoError(Exception):
     pass
@@ -93,6 +89,26 @@ def normalizar_continente(texto):
     return normalizar_texto(texto).capitalize()
 
 
+def mostrar_error(mensaje):
+    console.print(f"[bold red]{mensaje}[/bold red]")
+
+
+def mostrar_advertencia(mensaje):
+    console.print(f"[bold yellow]{mensaje}[/bold yellow]")
+
+
+def mostrar_exito(mensaje):
+    console.print(f"[bold green]{mensaje}[/bold green]")
+
+
+def mostrar_info(mensaje):
+    console.print(f"[bold cyan]{mensaje}[/bold cyan]")
+
+
+def mostrar_titulo(titulo):
+    console.print(Panel.fit(titulo, border_style="bold blue"))
+
+
 def pedir_texto_no_vacio(mensaje):
     while True:
         texto = normalizar_texto(input(mensaje))
@@ -101,7 +117,7 @@ def pedir_texto_no_vacio(mensaje):
         elif texto != "":
             return texto
         else:
-            print(f"{ROJO}Error: el texto no puede estar vacío.{RESET}")
+            mostrar_error("Error: el texto no puede estar vacío.")
 
 
 def pedir_entero(mensaje, minimo=None):
@@ -114,9 +130,9 @@ def pedir_entero(mensaje, minimo=None):
             if minimo is None or numero >= minimo:
                 return numero
             else:
-                print(f"{ROJO}Error: El número debe ser mayor o igual a {minimo}.{RESET}")
+                mostrar_error(f"Error: El número debe ser mayor o igual a {minimo}.")
         except ValueError:
-            print(f"{ROJO}Error: Debe ingresar un número entero válido.{RESET}")
+            mostrar_error("Error: Debe ingresar un número entero válido.")
 
 
 def pedir_opcion(minimo, maximo):
@@ -124,7 +140,7 @@ def pedir_opcion(minimo, maximo):
         opcion = pedir_entero("Seleccione una opcion: ")
         if minimo <= opcion <= maximo:
             return opcion
-        print(f"{ROJO}Error: debe elegir una opcion entre {minimo} y {maximo}.{RESET}")
+        mostrar_error(f"Error: debe elegir una opcion entre {minimo} y {maximo}.")
 
 
 def cargar_paises():
@@ -169,7 +185,7 @@ def guardar_paises(paises):
 
 
 def pausar():
-    input(f"\n{CYAN}Presione Enter para continuar...{RESET}")
+    console.input("\n[bold cyan]Presione Enter para continuar...[/bold cyan]")
 
 
 def existe_pais(paises, nombre):
@@ -183,7 +199,7 @@ def buscar_pais_exacto(paises, nombre):
         for pais in paises:
             if pais["nombre"].lower() == nombre_buscado:
                 return pais
-        print(f"{ROJO}Error: no se encontro un pais con ese nombre. Intente nuevamente o ingrese s |'salir' para cancelar.{RESET}")
+        mostrar_error("Error: no se encontro un pais con ese nombre. Intente nuevamente o ingrese s |'salir' para cancelar.")
         nombre = input("Nombre del pais: ").strip()
         if nombre.lower() == "salir" or nombre.lower() == "s":
             return None
@@ -199,13 +215,13 @@ def buscar_pais_por_nombre(paises, nombre):
 
 
 def agregar_pais(paises):
-    print(f"\n{AZUL}--- Agregar pais ---{RESET}")
+    mostrar_titulo("Agregar pais")
     
     try:
         nombre = pedir_texto_no_vacio("Ingrese el nombre o 's' para salir: ").strip().capitalize()
 
         if existe_pais(paises, nombre):
-            print(f"{ROJO}Error: ese pais ya existe en el sistema.{RESET}")
+            mostrar_error("Error: ese pais ya existe en el sistema.")
             return False
         if not nombre.isalpha():
             raise NombreErroneoError ("Error: el nombre del pais solo puede contener letras. Volviendo al menú principal.")
@@ -226,30 +242,30 @@ def agregar_pais(paises):
         }
         paises.append(pais)
         guardar_paises(paises)
-        print("Pais agregado correctamente.")
+        mostrar_exito("Pais agregado correctamente.")
         return True
     
     except NombreErroneoError as e:
-        print(f"{ROJO}{e}{RESET}")
+        mostrar_error(str(e))
         return False
     
     except SaliendoAlMenuError as e:
-        print(e)
+        mostrar_advertencia(str(e))
         return False
 
 
 def actualizar_pais(paises):
-    print(f"\n{AZUL}--- Actualizar pais ---{RESET}")
+    mostrar_titulo("Actualizar pais")
     try:
         nombre = pedir_texto_no_vacio("Ingrese el nombre del pais: ").strip()
         pais = buscar_pais_exacto(paises, nombre)
 
         if pais is None:
-            print(f"{AMARILLO}Volviendo al menú principal.{RESET}")
+            mostrar_advertencia("Volviendo al menú principal.")
             return False
 
-        print("Pais encontrado:")
-        print(formatear_pais(pais))
+        mostrar_info("Pais encontrado:")
+        console.print(formatear_pais(pais))
         while True:
             opcion = questionary.select(
                 message="Elija la acción a realizar:",
@@ -257,7 +273,7 @@ def actualizar_pais(paises):
             ).ask()
 
             if opcion == "Salir":
-                print("No se realizaron cambios.")
+                mostrar_advertencia("No se realizaron cambios.")
                 return True
             elif opcion == "Modificar población":
                 pais["poblacion"] = pedir_entero("Ingrese la nueva poblacion o 's' para salir: ", 1)
@@ -268,10 +284,10 @@ def actualizar_pais(paises):
                 pais["superficie"] = pedir_entero("Ingrese la nueva superficie en km2 o 's' para salir: ", 1)
 
             guardar_paises(paises)
-            print("Datos actualizados correctamente.")
+            mostrar_exito("Datos actualizados correctamente.")
             return True
     except SaliendoAlMenuError as e:
-        print(f"{AMARILLO}{e}{RESET}")
+        mostrar_advertencia(str(e))
         return False
 
 
@@ -389,13 +405,28 @@ def formatear_pais(pais):
 
 
 def mostrar_paises(paises, titulo="Listado de paises"):
-    print(f"\n{AZUL}--- {titulo} ---{RESET}")
+    mostrar_titulo(titulo)
     if not paises:
-        print("No hay paises para mostrar.")
+        mostrar_advertencia("No hay paises para mostrar.")
         return
 
+    tabla = Table(show_header=True, header_style="bold blue")
+    tabla.add_column("#", justify="right", style="cyan", no_wrap=True)
+    tabla.add_column("Nombre", style="bold white")
+    tabla.add_column("Poblacion", justify="right", style="green")
+    tabla.add_column("Superficie (km2)", justify="right", style="magenta")
+    tabla.add_column("Continente", style="yellow")
+
     for indice, pais in enumerate(paises, start=1):
-        print(f"{indice}. {formatear_pais(pais)}")
+        tabla.add_row(
+            str(indice),
+            pais["nombre"],
+            f"{pais['poblacion']:,}".replace(",", "."),
+            f"{pais['superficie']:,}".replace(",", "."),
+            pais["continente"],
+        )
+
+    console.print(tabla)
 
 
 def pedir_rango(mensaje_minimo, mensaje_maximo):
@@ -404,47 +435,75 @@ def pedir_rango(mensaje_minimo, mensaje_maximo):
         maximo = pedir_entero(mensaje_maximo, 1)
         if minimo <= maximo:
             return minimo, maximo
-        print(f"{ROJO}Error: el valor minimo no puede ser mayor que el maximo.{RESET}")
+        mostrar_error("Error: el valor minimo no puede ser mayor que el maximo.")
 
 
 def mostrar_estadisticas(paises):
     estadisticas = obtener_estadisticas(paises)
-    print(f"\n{AZUL}--- Estadisticas ---{RESET}")
+    mostrar_titulo("Estadisticas")
 
     if estadisticas is None:
-        print(f"{AMARILLO}No hay datos para calcular estadisticas.{RESET}")
+        mostrar_advertencia("No hay datos para calcular estadisticas.")
         return
 
-    print("Pais con mayor poblacion:")
-    print(formatear_pais(estadisticas["mayor_poblacion"]))
-    print("\nPais con menor poblacion:")
-    print(formatear_pais(estadisticas["menor_poblacion"]))
-    print(f"\nPromedio de poblacion: {estadisticas['promedio_poblacion']:.2f}")
-    print(f"Promedio de superficie: {estadisticas['promedio_superficie']:.2f}")
-    print("\nCantidad de paises por continente:")
+    console.print(
+        Panel.fit(
+            formatear_pais(estadisticas["mayor_poblacion"]),
+            title="Pais con mayor poblacion",
+            border_style="green",
+        )
+    )
+    console.print(
+        Panel.fit(
+            formatear_pais(estadisticas["menor_poblacion"]),
+            title="Pais con menor poblacion",
+            border_style="yellow",
+        )
+    )
+
+    tabla_resumen = Table(show_header=True, header_style="bold blue")
+    tabla_resumen.add_column("Indicador", style="cyan")
+    tabla_resumen.add_column("Valor", justify="right", style="bold white")
+    tabla_resumen.add_row(
+        "Promedio de poblacion",
+        f"{estadisticas['promedio_poblacion']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+    )
+    tabla_resumen.add_row(
+        "Promedio de superficie",
+        f"{estadisticas['promedio_superficie']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+    )
+    console.print(tabla_resumen)
+
+    tabla_continentes = Table(title="Cantidad de paises por continente", header_style="bold blue")
+    tabla_continentes.add_column("Continente", style="yellow")
+    tabla_continentes.add_column("Cantidad", justify="right", style="green")
     for continente, cantidad in estadisticas["cantidad_por_continente"].items():
-        print(f"{continente}: {cantidad}")
+        tabla_continentes.add_row(continente, str(cantidad))
+    console.print(tabla_continentes)
+    pausar()
+    limpiar_pantalla()
+
 
 def menu_busqueda(paises):
-    print(f"\n{AZUL}--- Buscar pais por nombre ---{RESET}")
+    mostrar_titulo("Buscar pais por nombre")
     try:
         nombre = pedir_texto_no_vacio("Ingrese el nombre o parte del nombre: ")
         resultados = buscar_pais_por_nombre(paises, nombre)
         if not resultados:
-            print(f"{AMARILLO}No se encontraron paises con esa busqueda.{RESET}")
+            mostrar_advertencia("No se encontraron paises con esa busqueda.")
             return
 
         mostrar_paises(resultados, "Resultados de la busqueda")
     except SaliendoAlMenuError as e:
-        print(f"{AMARILLO}{e}{RESET}")
+        mostrar_advertencia(str(e))
 
 def menu_filtros(paises):
     while True:
-        print(f"\n{AZUL}--- Filtros ---{RESET}")
-        print(f"{AZUL}1. Filtrar por continente{RESET}")
-        print(f"{AZUL}2. Filtrar por rango de poblacion{RESET}")
-        print(f"{AZUL}3. Filtrar por rango de superficie{RESET}")
-        print(f"{AZUL}4. Volver{RESET}")
+        mostrar_titulo("Filtros")
+        console.print("[bold blue]1. Filtrar por continente[/bold blue]")
+        console.print("[bold blue]2. Filtrar por rango de poblacion[/bold blue]")
+        console.print("[bold blue]3. Filtrar por rango de superficie[/bold blue]")
+        console.print("[bold blue]4. Volver[/bold blue]")
         try:
             opcion = pedir_opcion(1, 4)
 
@@ -454,7 +513,7 @@ def menu_filtros(paises):
                 if resultados:
                     mostrar_paises(resultados, f"Paises del continente {continente}")
                 else:
-                    print(f"{AMARILLO}No se encontraron paises para ese continente.{RESET}")
+                    mostrar_advertencia("No se encontraron paises para ese continente.")
                 pausar()
             elif opcion == 2:
                 minimo, maximo = pedir_rango(
@@ -465,7 +524,7 @@ def menu_filtros(paises):
                 if resultados:
                     mostrar_paises(resultados, "Paises filtrados por poblacion")
                 else:
-                    print(f"{AMARILLO}No se encontraron paises en ese rango de poblacion.{RESET}")
+                    mostrar_advertencia("No se encontraron paises en ese rango de poblacion.")
                 pausar()
             elif opcion == 3:
                 minimo, maximo = pedir_rango(
@@ -476,47 +535,52 @@ def menu_filtros(paises):
                 if resultados:
                     mostrar_paises(resultados, "Paises filtrados por superficie")
                 else:
-                    print(f"{AMARILLO}No se encontraron paises en ese rango de superficie.{RESET}")
+                    mostrar_advertencia("No se encontraron paises en ese rango de superficie.")
                 pausar()
             else:
                 break
         except SaliendoAlMenuError as e:
-            print(f"{AMARILLO}{e}{RESET}")
+            mostrar_advertencia(str(e))
 
 def menu_ordenamientos(paises):
-    
-    while True:
-        print(f"\n{AZUL}--- Ordenamientos ---{RESET}")
-        opcion = questionary.select(
-        message="Elija el método de ordenamiento: ",
-        choices=["Por nombre", "Por poblacion","Por superficie", "Salir"]
-        ).ask()
-        print(f"Elegiste: {opcion}")
-        
-        if opcion == "Salir":
-            break
-        else:
-            as_des = questionary.select(
-            message="Elija Ascendente o Descendente:",
-            choices=["Ascendente", "Descendente"]
+    try:
+        while True:
+            mostrar_titulo("Ordenamientos")
+            opcion = questionary.select(
+            message="Elija el método de ordenamiento: ",
+            choices=["Por nombre", "Por poblacion","Por superficie", "Salir"]
             ).ask()
-            criterio = ""
-            as_des = "Ascendente" if as_des == "Ascendente" else "Descendente"
-            if opcion == "Por nombre":
-                criterio = "nombre"
-            elif opcion == "Por poblacion":
-                criterio = "poblacion"
-            elif opcion == "Por superficie":
-                criterio = "superficie"
+            mostrar_info(f"Elegiste: {opcion}")
             
-            paises_ordenados = ordenar_paises(paises, criterio, as_des)
-            mostrar_paises(paises_ordenados, f"Paises ordenados por {criterio}")
-            pausar()
-            limpiar_pantalla()
+            if opcion == "Salir":
+                raise SaliendoAlMenuError("Saliendo al menú principal.")
+            
+            else:
+                as_des = questionary.select(
+                message="Elija Ascendente o Descendente:",
+                choices=["Ascendente", "Descendente"]
+                ).ask()
+                criterio = ""
+                as_des = "Ascendente" if as_des == "Ascendente" else "Descendente"
+                if opcion == "Por nombre":
+                    criterio = "nombre"
+                elif opcion == "Por poblacion":
+                    criterio = "poblacion"
+                elif opcion == "Por superficie":
+                    criterio = "superficie"
+                
+                paises_ordenados = ordenar_paises(paises, criterio, as_des)
+                mostrar_paises(paises_ordenados, f"Paises ordenados por {criterio}")
+                pausar()
+                limpiar_pantalla()
+    except SaliendoAlMenuError as e:
+        mostrar_advertencia(str(e))
+        pausar()
+        limpiar_pantalla()
 
 
 def mostrar_menu_principal():
-    print(f"\n{AZUL}=== Gestion de Datos de Paises ==={RESET}")
+    mostrar_titulo("Gestion de Datos de Paises")
     opcion = questionary.select(
     message="Seleccioná:",
     choices=["Mostrar todos los paises", "Agregar un pais", "Actualizar poblacion y superficie", 
@@ -529,8 +593,8 @@ def main():
     paises, lineas_invalidas = cargar_paises()
 
     if lineas_invalidas > 0:
-        print(
-            f"{AMARILLO}Advertencia: se ignoraron {lineas_invalidas} lineas invalidas del archivo CSV.{RESET}"
+        mostrar_advertencia(
+            f"Advertencia: se ignoraron {lineas_invalidas} lineas invalidas del archivo CSV."
         )
 
     while True:
@@ -558,13 +622,9 @@ def main():
             menu_ordenamientos(paises)
         elif opcion == "Mostrar estadisticas":
             mostrar_estadisticas(paises)
-            pausar()
         elif opcion == "Salir":
-            print("Programa finalizado.")
+            mostrar_info("Programa finalizado.")
             break
 
 def limpiar_pantalla():
-    if sys.platform.startswith('win'):
-        os.system('cls')
-    else:
-        os.system('clear')
+    console.clear()
