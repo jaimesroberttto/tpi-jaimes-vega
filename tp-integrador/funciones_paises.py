@@ -101,7 +101,7 @@ def pedir_texto_no_vacio(mensaje):
         elif texto != "":
             return texto
         else:
-            print("Error: el texto no puede estar vacío.")
+            print(f"{ROJO}Error: el texto no puede estar vacío.{RESET}")
 
 
 def pedir_entero(mensaje, minimo=None):
@@ -114,9 +114,9 @@ def pedir_entero(mensaje, minimo=None):
             if minimo is None or numero >= minimo:
                 return numero
             else:
-                print(f"Error: El número debe ser mayor o igual a {minimo}.")
+                print(f"{ROJO}Error: El número debe ser mayor o igual a {minimo}.{RESET}")
         except ValueError:
-            print("Error: Debe ingresar un número entero válido.")
+            print(f"{ROJO}Error: Debe ingresar un número entero válido.{RESET}")
 
 
 def pedir_opcion(minimo, maximo):
@@ -124,7 +124,7 @@ def pedir_opcion(minimo, maximo):
         opcion = pedir_entero("Seleccione una opcion: ")
         if minimo <= opcion <= maximo:
             return opcion
-        print(f"Error: debe elegir una opcion entre {minimo} y {maximo}.")
+        print(f"{ROJO}Error: debe elegir una opcion entre {minimo} y {maximo}.{RESET}")
 
 
 def cargar_paises():
@@ -183,7 +183,7 @@ def buscar_pais_exacto(paises, nombre):
         for pais in paises:
             if pais["nombre"].lower() == nombre_buscado:
                 return pais
-        print("Error: no se encontro un pais con ese nombre. Intente nuevamente o ingrese s |'salir' para cancelar.")
+        print(f"{ROJO}Error: no se encontro un pais con ese nombre. Intente nuevamente o ingrese s |'salir' para cancelar.{RESET}")
         nombre = input("Nombre del pais: ").strip()
         if nombre.lower() == "salir" or nombre.lower() == "s":
             return None
@@ -205,7 +205,7 @@ def agregar_pais(paises):
         nombre = pedir_texto_no_vacio("Ingrese el nombre o 's' para salir: ").strip().capitalize()
 
         if existe_pais(paises, nombre):
-            print("Error: ese pais ya existe en el sistema.")
+            print(f"{ROJO}Error: ese pais ya existe en el sistema.{RESET}")
             return False
         if not nombre.isalpha():
             raise NombreErroneoError ("Error: el nombre del pais solo puede contener letras. Volviendo al menú principal.")
@@ -230,7 +230,7 @@ def agregar_pais(paises):
         return True
     
     except NombreErroneoError as e:
-        print(e)
+        print(f"{ROJO}{e}{RESET}")
         return False
     
     except SaliendoAlMenuError as e:
@@ -245,14 +245,14 @@ def actualizar_pais(paises):
         pais = buscar_pais_exacto(paises, nombre)
 
         if pais is None:
-            print("Volviendo al menú principal.")
+            print(f"{AMARILLO}Volviendo al menú principal.{RESET}")
             return False
 
         print("Pais encontrado:")
         print(formatear_pais(pais))
         while True:
             opcion = questionary.select(
-                message=f"{AZUL}Elija la acción a realizar:{RESET}",
+                message="Elija la acción a realizar:",
                 choices=["Modificar población", "Modificar superficie", "Modificar ambos", "Salir"]
             ).ask()
 
@@ -271,7 +271,7 @@ def actualizar_pais(paises):
             print("Datos actualizados correctamente.")
             return True
     except SaliendoAlMenuError as e:
-        print(e)
+        print(f"{AMARILLO}{e}{RESET}")
         return False
 
 
@@ -404,7 +404,7 @@ def pedir_rango(mensaje_minimo, mensaje_maximo):
         maximo = pedir_entero(mensaje_maximo, 1)
         if minimo <= maximo:
             return minimo, maximo
-        print("Error: el valor minimo no puede ser mayor que el maximo.")
+        print(f"{ROJO}Error: el valor minimo no puede ser mayor que el maximo.{RESET}")
 
 
 def mostrar_estadisticas(paises):
@@ -412,7 +412,7 @@ def mostrar_estadisticas(paises):
     print(f"\n{AZUL}--- Estadisticas ---{RESET}")
 
     if estadisticas is None:
-        print("No hay datos para calcular estadisticas.")
+        print(f"{AMARILLO}No hay datos para calcular estadisticas.{RESET}")
         return
 
     print("Pais con mayor poblacion:")
@@ -431,12 +431,12 @@ def menu_busqueda(paises):
         nombre = pedir_texto_no_vacio("Ingrese el nombre o parte del nombre: ")
         resultados = buscar_pais_por_nombre(paises, nombre)
         if not resultados:
-            print("No se encontraron paises con esa busqueda.")
+            print(f"{AMARILLO}No se encontraron paises con esa busqueda.{RESET}")
             return
 
         mostrar_paises(resultados, "Resultados de la busqueda")
     except SaliendoAlMenuError as e:
-        print(e)
+        print(f"{AMARILLO}{e}{RESET}")
 
 def menu_filtros(paises):
     while True:
@@ -454,7 +454,7 @@ def menu_filtros(paises):
                 if resultados:
                     mostrar_paises(resultados, f"Paises del continente {continente}")
                 else:
-                    print("No se encontraron paises para ese continente.")
+                    print(f"{AMARILLO}No se encontraron paises para ese continente.{RESET}")
                 pausar()
             elif opcion == 2:
                 minimo, maximo = pedir_rango(
@@ -465,7 +465,7 @@ def menu_filtros(paises):
                 if resultados:
                     mostrar_paises(resultados, "Paises filtrados por poblacion")
                 else:
-                    print("No se encontraron paises en ese rango de poblacion.")
+                    print(f"{AMARILLO}No se encontraron paises en ese rango de poblacion.{RESET}")
                 pausar()
             elif opcion == 3:
                 minimo, maximo = pedir_rango(
@@ -476,19 +476,19 @@ def menu_filtros(paises):
                 if resultados:
                     mostrar_paises(resultados, "Paises filtrados por superficie")
                 else:
-                    print("No se encontraron paises en ese rango de superficie.")
+                    print(f"{AMARILLO}No se encontraron paises en ese rango de superficie.{RESET}")
                 pausar()
             else:
                 break
         except SaliendoAlMenuError as e:
-            print(e)
+            print(f"{AMARILLO}{e}{RESET}")
 
 def menu_ordenamientos(paises):
     
     while True:
         print(f"\n{AZUL}--- Ordenamientos ---{RESET}")
         opcion = questionary.select(
-        message=f"{AZUL}Elija el método de ordenamiento:{RESET} ",
+        message="Elija el método de ordenamiento: ",
         choices=["Por nombre", "Por poblacion","Por superficie", "Salir"]
         ).ask()
         print(f"Elegiste: {opcion}")
@@ -497,7 +497,7 @@ def menu_ordenamientos(paises):
             break
         else:
             as_des = questionary.select(
-            message=f"{AZUL}Elija Ascendente o Descendente:{RESET}",
+            message="Elija Ascendente o Descendente:",
             choices=["Ascendente", "Descendente"]
             ).ask()
             criterio = ""
@@ -518,7 +518,7 @@ def menu_ordenamientos(paises):
 def mostrar_menu_principal():
     print(f"\n{AZUL}=== Gestion de Datos de Paises ==={RESET}")
     opcion = questionary.select(
-    message=f"{AZUL}Seleccioná:{RESET}",
+    message="Seleccioná:",
     choices=["Mostrar todos los paises", "Agregar un pais", "Actualizar poblacion y superficie", 
              "Buscar pais por nombre", "Filtrar paises", "Ordenar paises", "Mostrar estadisticas", "Salir"]
             ).ask()
@@ -530,7 +530,7 @@ def main():
 
     if lineas_invalidas > 0:
         print(
-            f"Advertencia: se ignoraron {lineas_invalidas} lineas invalidas del archivo CSV."
+            f"{AMARILLO}Advertencia: se ignoraron {lineas_invalidas} lineas invalidas del archivo CSV.{RESET}"
         )
 
     while True:
