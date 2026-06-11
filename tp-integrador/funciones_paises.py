@@ -420,10 +420,12 @@ def obtener_estadisticas(paises):
 
 
 def formatear_pais(pais):
+    poblacion = f"{pais['poblacion']:,}".replace(",", ".")
+    superficie = f"{pais['superficie']:,}".replace(",", ".")
     return (
         f"Nombre: {pais['nombre']} | "
-        f"Poblacion: {pais['poblacion']} | "
-        f"Superficie: {pais['superficie']} km2 | "
+        f"Poblacion: {poblacion} | "
+        f"Superficie: {superficie} km2 | "
         f"Continente: {pais['continente']}"
     )
 
@@ -520,6 +522,7 @@ def menu_busqueda(paises):
         mostrar_paises(resultados, "Resultados de la busqueda")
     except SaliendoAlMenuError as e:
         mostrar_advertencia(str(e))
+    
 
 def menu_filtros(paises):
     while True:
@@ -642,6 +645,7 @@ def main():
         elif opcion == "Buscar pais por nombre":
             menu_busqueda(paises)
             pausar()
+            limpiar_pantalla()
         elif opcion == "Filtrar paises":
             menu_filtros(paises)
             pausar()
