@@ -19,7 +19,7 @@ class SaliendoAlMenuError(Exception):
 def validar_continente(continente):
     continentes = ["America", "Europa", "Asia", "Africa", "Oceania"]
     if continente not in continentes:
-        raise ValueError(f"El continente {continente} no es válido.")
+        return None
     return continente
 
 
@@ -227,24 +227,37 @@ def agregar_pais(paises):
     mostrar_titulo("Agregar pais")
     
     try:
-        nombre = pedir_texto_no_vacio("Ingrese el nombre o 's' para salir: ").strip().capitalize()
+        while True:
+            nombre = pedir_texto_no_vacio("Ingrese el nombre o 's' para salir: ").strip().capitalize()
 
-        if existe_pais(paises, nombre):
-            mostrar_error("Error: ese pais ya existe en el sistema.")
-            return False
-        if not nombre.isalpha():
-            raise NombreErroneoError ("Error: el nombre del pais solo puede contener letras. Volviendo al menú principal.")
-        
-        poblacion = pedir_entero("Ingrese poblacion o 's' para salir: ", 1)
-        superficie = pedir_entero("Ingrese Superficie en km2 o 's' para salir: ", 1)
-        continente = normalizar_continente(
-            pedir_texto_no_vacio("Ingrese el continente o 's' para salir: ")
-        )
-        if not continente.isalpha():
-            raise NombreErroneoError ("Error: el nombre del continente solo puede contener letras. Volviendo al menú principal.")
-        if not validar_continente(continente):
-            raise ValueError(f"El continente {continente} no es válido.")
-        
+            if existe_pais(paises, nombre):
+                mostrar_error("Error: ese pais ya existe en el sistema.")
+                return False
+            if not nombre.isalpha():
+                raise NombreErroneoError ("Error: el nombre del pais solo puede contener letras. Volviendo al menú principal.")
+            break
+        while True:
+            poblacion = pedir_entero("Ingrese poblacion o 's' para salir: ", 1)
+            break
+        while True:
+            superficie = pedir_entero("Ingrese Superficie en km2 o 's' para salir: ", 1)
+            break
+        while True:
+            try:
+                continente = normalizar_continente(pedir_texto_no_vacio("Ingrese el continente o 's' para salir: "))
+                if not continente.isalpha():
+                    raise NombreErroneoError("Error: el nombre del continente solo puede contener letras.")
+                if not validar_continente(continente):
+                    raise ValueError (f"El continente {continente} no es válido.")
+            except ValueError as e:
+                mostrar_error(str(e))
+                continue
+            except NombreErroneoError as e:
+                mostrar_error(str(e))
+                continue
+            else:
+                break
+
         pais = {
             "nombre": nombre,
             "poblacion": poblacion,
@@ -255,8 +268,7 @@ def agregar_pais(paises):
         guardar_paises(paises)
         mostrar_exito("Pais agregado correctamente.")
         return True
-    except ValueError as e:
-        print(e)
+    
     except NombreErroneoError as e:
         mostrar_error(str(e))
         return False
@@ -511,15 +523,14 @@ def menu_busqueda(paises):
 
 def menu_filtros(paises):
     while True:
-        mostrar_titulo("Filtros")
-        console.print("[bold blue]1. Filtrar por continente[/bold blue]")
-        console.print("[bold blue]2. Filtrar por rango de poblacion[/bold blue]")
-        console.print("[bold blue]3. Filtrar por rango de superficie[/bold blue]")
-        console.print("[bold blue]4. Volver[/bold blue]")
+        mostrar_titulo("[bold blue]Filtros[/bold blue]")
+        opcion = questionary.select(
+            message="Elija el método de ordenamiento: ",
+            choices=["Filtrar por continente", "Filtrar por rango de poblacion", "Filtrar por rango de superficie", "Salir"]
+            ).ask()
+        mostrar_info(f"Elegiste: {opcion}")
         try:
-            opcion = pedir_opcion(1, 4)
-
-            if opcion == 1:
+            if opcion == "Filtrar por continente":
                 continente = pedir_texto_no_vacio("Ingrese el continente: ")
                 resultados = filtrar_por_continente(paises, continente)
                 if resultados:
@@ -527,7 +538,8 @@ def menu_filtros(paises):
                 else:
                     mostrar_advertencia("No se encontraron paises para ese continente.")
                 pausar()
-            elif opcion == 2:
+                limpiar_pantalla()
+            elif opcion == "Filtrar por rango de poblacion":
                 minimo, maximo = pedir_rango(
                     "Ingrese la poblacion minima: ",
                     "Ingrese la poblacion maxima: ",
@@ -538,7 +550,8 @@ def menu_filtros(paises):
                 else:
                     mostrar_advertencia("No se encontraron paises en ese rango de poblacion.")
                 pausar()
-            elif opcion == 3:
+                limpiar_pantalla()
+            elif opcion == "Filtrar por rango de superficie":
                 minimo, maximo = pedir_rango(
                     "Ingrese la superficie minima: ",
                     "Ingrese la superficie maxima: ",
@@ -549,7 +562,8 @@ def menu_filtros(paises):
                 else:
                     mostrar_advertencia("No se encontraron paises en ese rango de superficie.")
                 pausar()
-            else:
+                limpiar_pantalla()
+            elif opcion == "Salir":
                 break
         except SaliendoAlMenuError as e:
             mostrar_advertencia(str(e))
@@ -630,6 +644,8 @@ def main():
             pausar()
         elif opcion == "Filtrar paises":
             menu_filtros(paises)
+            pausar()
+            limpiar_pantalla()
         elif opcion == "Ordenar paises":
             menu_ordenamientos(paises)
         elif opcion == "Mostrar estadisticas":
