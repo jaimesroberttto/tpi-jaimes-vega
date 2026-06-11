@@ -9,6 +9,13 @@ CARPETA_ACTUAL = os.path.dirname(os.path.abspath(__file__))
 RUTA_CSV = os.path.join(CARPETA_ACTUAL, "paises.csv")
 CAMPOS = ["nombre", "poblacion", "superficie", "continente"]
 
+VERDE = "\033[1;32m"
+ROJO = "\033[1;31m"
+AMARILLO = "\033[1;33m"
+AZUL = "\033[1;34m"
+CYAN = "\033[1;36m"
+RESET = "\033[0m"
+
 class NombreErroneoError(Exception):
     pass
 class SaliendoAlMenuError(Exception):
@@ -162,7 +169,7 @@ def guardar_paises(paises):
 
 
 def pausar():
-    input("\nPresione Enter para continuar...")
+    input(f"\n{CYAN}Presione Enter para continuar...{RESET}")
 
 
 def existe_pais(paises, nombre):
@@ -192,7 +199,7 @@ def buscar_pais_por_nombre(paises, nombre):
 
 
 def agregar_pais(paises):
-    print("\n--- Agregar pais ---")
+    print(f"\n{AZUL}--- Agregar pais ---{RESET}")
     
     try:
         nombre = pedir_texto_no_vacio("Ingrese el nombre o 's' para salir: ").strip().capitalize()
@@ -232,7 +239,7 @@ def agregar_pais(paises):
 
 
 def actualizar_pais(paises):
-    print("\n--- Actualizar pais ---")
+    print(f"\n{AZUL}--- Actualizar pais ---{RESET}")
     try:
         nombre = pedir_texto_no_vacio("Ingrese el nombre del pais: ").strip()
         pais = buscar_pais_exacto(paises, nombre)
@@ -245,7 +252,7 @@ def actualizar_pais(paises):
         print(formatear_pais(pais))
         while True:
             opcion = questionary.select(
-                message="Elija la acción a realizar:",
+                message=f"{AZUL}Elija la acción a realizar:{RESET}",
                 choices=["Modificar población", "Modificar superficie", "Modificar ambos", "Salir"]
             ).ask()
 
@@ -382,7 +389,7 @@ def formatear_pais(pais):
 
 
 def mostrar_paises(paises, titulo="Listado de paises"):
-    print(f"\n--- {titulo} ---")
+    print(f"\n{AZUL}--- {titulo} ---{RESET}")
     if not paises:
         print("No hay paises para mostrar.")
         return
@@ -402,7 +409,7 @@ def pedir_rango(mensaje_minimo, mensaje_maximo):
 
 def mostrar_estadisticas(paises):
     estadisticas = obtener_estadisticas(paises)
-    print("\n--- Estadisticas ---")
+    print(f"\n{AZUL}--- Estadisticas ---{RESET}")
 
     if estadisticas is None:
         print("No hay datos para calcular estadisticas.")
@@ -419,7 +426,7 @@ def mostrar_estadisticas(paises):
         print(f"{continente}: {cantidad}")
 
 def menu_busqueda(paises):
-    print("\n--- Buscar pais por nombre ---")
+    print(f"\n{AZUL}--- Buscar pais por nombre ---{RESET}")
     try:
         nombre = pedir_texto_no_vacio("Ingrese el nombre o parte del nombre: ")
         resultados = buscar_pais_por_nombre(paises, nombre)
@@ -433,11 +440,11 @@ def menu_busqueda(paises):
 
 def menu_filtros(paises):
     while True:
-        print("\n--- Filtros ---")
-        print("1. Filtrar por continente")
-        print("2. Filtrar por rango de poblacion")
-        print("3. Filtrar por rango de superficie")
-        print("4. Volver")
+        print(f"\n{AZUL}--- Filtros ---{RESET}")
+        print(f"{AZUL}1. Filtrar por continente{RESET}")
+        print(f"{AZUL}2. Filtrar por rango de poblacion{RESET}")
+        print(f"{AZUL}3. Filtrar por rango de superficie{RESET}")
+        print(f"{AZUL}4. Volver{RESET}")
         try:
             opcion = pedir_opcion(1, 4)
 
@@ -479,9 +486,9 @@ def menu_filtros(paises):
 def menu_ordenamientos(paises):
     
     while True:
-        print("\n--- Ordenamientos ---")
+        print(f"\n{AZUL}--- Ordenamientos ---{RESET}")
         opcion = questionary.select(
-        message="Elija el método de ordenamiento: ",
+        message=f"{AZUL}Elija el método de ordenamiento:{RESET} ",
         choices=["Por nombre", "Por poblacion","Por superficie", "Salir"]
         ).ask()
         print(f"Elegiste: {opcion}")
@@ -490,7 +497,7 @@ def menu_ordenamientos(paises):
             break
         else:
             as_des = questionary.select(
-            message="Elija Ascendente o Descendente:",
+            message=f"{AZUL}Elija Ascendente o Descendente:{RESET}",
             choices=["Ascendente", "Descendente"]
             ).ask()
             criterio = ""
@@ -509,9 +516,9 @@ def menu_ordenamientos(paises):
 
 
 def mostrar_menu_principal():
-    print("\n=== Gestion de Datos de Paises ===")
+    print(f"\n{AZUL}=== Gestion de Datos de Paises ==={RESET}")
     opcion = questionary.select(
-    message="Seleccioná:",
+    message=f"{AZUL}Seleccioná:{RESET}",
     choices=["Mostrar todos los paises", "Agregar un pais", "Actualizar poblacion y superficie", 
              "Buscar pais por nombre", "Filtrar paises", "Ordenar paises", "Mostrar estadisticas", "Salir"]
             ).ask()
