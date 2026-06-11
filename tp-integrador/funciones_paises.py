@@ -6,7 +6,6 @@ from rich.panel import Panel
 from rich.table import Table
 
 
-
 CARPETA_ACTUAL = os.path.dirname(os.path.abspath(__file__))
 RUTA_CSV = os.path.join(CARPETA_ACTUAL, "paises.csv")
 CAMPOS = ["nombre", "poblacion", "superficie", "continente"]
@@ -16,6 +15,13 @@ class NombreErroneoError(Exception):
     pass
 class SaliendoAlMenuError(Exception):
     pass
+
+def validar_continente(continente):
+    continentes = ["America", "Europa", "Asia", "Africa", "Oceania"]
+    if continente not in continentes:
+        raise ValueError(f"El continente {continente} no es válido.")
+    return continente
+
 
 def crear_csv_base():
     with open(RUTA_CSV, "w", newline="", encoding="utf-8") as archivo:
@@ -122,7 +128,10 @@ def pedir_texto_no_vacio(mensaje):
 
 def pedir_entero(mensaje, minimo=None):
     while True:
-        dato = input(mensaje).strip()
+        dato = input(mensaje).strip().replace(".", "")
+        if dato == "":
+            mostrar_error("Error: El número no puede estar vacío.")
+            continue
         if dato.lower() == "s" or dato.lower() == "salir":
             raise SaliendoAlMenuError("Saliendo al menú principal.")
         try:
@@ -233,7 +242,9 @@ def agregar_pais(paises):
         )
         if not continente.isalpha():
             raise NombreErroneoError ("Error: el nombre del continente solo puede contener letras. Volviendo al menú principal.")
-
+        if not validar_continente(continente):
+            raise ValueError(f"El continente {continente} no es válido.")
+        
         pais = {
             "nombre": nombre,
             "poblacion": poblacion,
@@ -244,7 +255,8 @@ def agregar_pais(paises):
         guardar_paises(paises)
         mostrar_exito("Pais agregado correctamente.")
         return True
-    
+    except ValueError as e:
+        print(e)
     except NombreErroneoError as e:
         mostrar_error(str(e))
         return False
