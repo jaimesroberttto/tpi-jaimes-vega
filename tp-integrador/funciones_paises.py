@@ -1,3 +1,8 @@
+'''Este módulo contiene funciones relacionadas con la gestión de datos de países, incluyendo la carga y guardado de datos en un archivo CSV, 
+la validación de datos, la búsqueda, filtrado y ordenamiento de países, y la presentación de información en la consola utilizando la biblioteca rich.
+El módulo también define excepciones personalizadas para manejar errores específicos relacionados con nombres incorrectos y la salida al menú principal.
+Las funciones incluidas en este módulo permiten al usuario interactuar con una lista de países, realizar operaciones de búsqueda, filtrado y ordenamiento, 
+y obtener estadísticas sobre los países almacenados en el sistema.'''
 import csv
 import os
 import questionary
@@ -6,24 +11,32 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-
+'''Se definen constantes para la ruta del archivo CSV y los campos que se utilizarán en el archivo. 
+También se crea una instancia de Console de la biblioteca rich para mostrar mensajes con estilos en la consola.'''
 CARPETA_ACTUAL = os.path.dirname(os.path.abspath(__file__))
 RUTA_CSV = os.path.join(CARPETA_ACTUAL, "paises.csv")
 CAMPOS = ["nombre", "poblacion", "superficie", "continente"]
 console = Console()
 
+'''Se definen dos clases de excepciones personalizadas para manejar errores específicos relacionados con nombres incorrectos y la salida al menú principal.'''
 class NombreErroneoError(Exception):
     pass
 class SaliendoAlMenuError(Exception):
     pass
 
+'''Se definen varias funciones para validar el continente, crear un archivo CSV base con datos iniciales, normalizar texto, 
+mostrar mensajes de error, advertencia, éxito e información, mostrar títulos, pedir texto no vacío y números enteros, 
+cargar y guardar países desde el archivo CSV, pausar la ejecución, verificar la existencia de un país, buscar países por nombre, 
+agregar y actualizar países, filtrar países por continente y rangos de población y superficie, ordenar países por diferentes criterios, 
+obtener estadísticas sobre los países y mostrar los países en formato de tabla.'''
 def validar_continente(continente):
     continentes = ["America", "Europa", "Asia", "Africa", "Oceania"]
     if continente not in continentes:
         return None
     return continente
 
-
+'''La función crear_csv_base() se encarga de crear un archivo CSV con datos iniciales de países si el archivo no existe. 
+Esto asegura que el programa tenga datos para trabajar desde el principio.'''
 def crear_csv_base():
     with open(RUTA_CSV, "w", newline="", encoding="utf-8") as archivo:
         escritor = csv.DictWriter(archivo, fieldnames=CAMPOS)
@@ -87,36 +100,45 @@ def crear_csv_base():
             ]
         )
 
-
+'''La función normalizar_texto() se encarga de eliminar tildes y caracteres especiales de un texto, y de eliminar espacios adicionales. 
+Esto es útil para asegurar que las comparaciones de texto sean consistentes, independientemente de cómo se'''
 def normalizar_texto(texto):
     texto_sin_tildes = ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn')
     return " ".join(texto_sin_tildes.strip().split())
 
-
+'''La función normalizar_continente() utiliza la función normalizar_texto() para normalizar el nombre del continente y luego lo capitaliza. 
+Esto asegura que los nombres de los continentes se almacenen de manera consistente en el sistema.'''
 def normalizar_continente(texto):
     return normalizar_texto(texto).capitalize()
 
-
+'''Las funciones mostrar_error(), mostrar_advertencia(), mostrar_exito() y mostrar_info() se encargan de mostrar mensajes con diferentes estilos y colores
+ en la consola, utilizando la biblioteca rich. Esto mejora la experiencia del usuario al proporcionar retroalimentación visual clara 
+ sobre el estado de las operaciones realizadas'''
 def mostrar_error(mensaje):
     console.print(f"[bold red]{mensaje}[/bold red]")
 
-
+'''La función mostrar_titulo() se encarga de mostrar un título con un estilo específico utilizando un panel de rich. 
+Esto ayuda a destacar secciones importantes del programa, como los menús o los resultados de las operaciones'''
 def mostrar_advertencia(mensaje):
     console.print(f"[bold yellow]{mensaje}[/bold yellow]")
 
-
+'''La función pedir_texto_no_vacio() se encarga de solicitar al usuario que ingrese un texto que no esté vacío. 
+Si el usuario ingresa "s" o "salir", se lanza una excepción para salir'''
 def mostrar_exito(mensaje):
     console.print(f"[bold green]{mensaje}[/bold green]")
 
-
+'''La función pedir_entero() se encarga de solicitar al usuario que ingrese un número entero, con la opción de especificar un valor mínimo. 
+Si el usuario ingresa "s" o "salir", se lanza una excepción para salir'''
 def mostrar_info(mensaje):
     console.print(f"[bold cyan]{mensaje}[/bold cyan]")
 
-
+'''La función pedir_opcion() se encarga de solicitar al usuario que seleccione una opción dentro de un rango específico. 
+Si el usuario ingresa una opción fuera del rango, se muestra un mensaje de error y se solicita'''
 def mostrar_titulo(titulo):
     console.print(Panel.fit(titulo, border_style="bold blue"))
 
-
+'''La función pedir_texto_no_vacio() se encarga de solicitar al usuario que ingrese un texto que no esté vacío. 
+Si el usuario ingresa "s" o "salir", se lanza una excepción para salir al menú principal. Si el texto ingresado es válido, se devuelve el texto normalizado.'''
 def pedir_texto_no_vacio(mensaje):
     while True:
         texto = normalizar_texto(input(mensaje))
@@ -127,7 +149,10 @@ def pedir_texto_no_vacio(mensaje):
         else:
             mostrar_error("Error: el texto no puede estar vacío.")
 
-
+'''La función pedir_entero() se encarga de solicitar al usuario que ingrese un número entero, con la opción de especificar un valor mínimo. 
+Si el usuario ingresa "s" o "salir", se lanza una excepción para salir al menú principal. 
+Si el número ingresado es válido y cumple con el requisito de ser mayor o igual al mínimo, se devuelve el número. 
+Si el número ingresado no es válido o no cumple con el requisito, se muestra un mensaje de error y se solicita nuevamente.'''
 def pedir_entero(mensaje, minimo=None):
     while True:
         dato = input(mensaje).strip().replace(".", "")
@@ -145,7 +170,8 @@ def pedir_entero(mensaje, minimo=None):
         except ValueError:
             mostrar_error("Error: Debe ingresar un número entero válido.")
 
-
+'''La función pedir_opcion() se encarga de solicitar al usuario que seleccione una opción dentro de un rango específico. 
+Si el usuario ingresa una opción fuera del rango, se muestra un mensaje de error y se solicita nuevamente hasta que se ingrese una opción válida.'''
 def pedir_opcion(minimo, maximo):
     while True:
         opcion = pedir_entero("Seleccione una opcion: ")
@@ -153,7 +179,12 @@ def pedir_opcion(minimo, maximo):
             return opcion
         mostrar_error(f"Error: debe elegir una opcion entre {minimo} y {maximo}.")
 
-
+'''La función cargar_paises() se encarga de cargar los datos de los países desde el archivo CSV. Si el archivo no existe, se crea un archivo base 
+con datos iniciales. La función lee el archivo CSV, normaliza los datos y los almacena en una lista de diccionarios. 
+Si encuentra líneas inválidas en el archivo, las cuenta y las ignora, mostrando una advertencia al usuario. 
+Finalmente, devuelve la lista de países cargados y la cantidad de líneas inválidas encontradas. 
+Esto permite al programa manejar de manera robusta los datos del archivo CSV, asegurando que solo se trabajen con datos 
+válidos y proporcionando retroalimentación sobre cualquier problema encontrado durante la carga.'''
 def cargar_paises():
     if not os.path.exists(RUTA_CSV):
         crear_csv_base()
@@ -186,7 +217,11 @@ def cargar_paises():
 
     return paises, lineas_invalidas
 
-
+'''La función guardar_paises() se encarga de guardar la lista de países en el archivo CSV. 
+Toma la lista de países como argumento, abre el archivo CSV en modo escritura, y utiliza un DictWriter para escribir los datos de los países en el archivo.
+Primero escribe la cabecera del archivo con los nombres de los campos, y luego escribe cada país como una fila en el archivo CSV. 
+Esto permite que los cambios realizados en la lista de países se reflejen en el archivo CSV, asegurando que los datos se mantengan actualizados
+y persistentes entre ejecuciones del programa.'''
 def guardar_paises(paises):
     with open(RUTA_CSV, "w", newline="", encoding="utf-8") as archivo:
         escritor = csv.DictWriter(archivo, fieldnames=CAMPOS)
@@ -194,16 +229,22 @@ def guardar_paises(paises):
         for pais in paises:
             escritor.writerow(pais)
 
-
+'''La función pausar() se encarga de pausar la ejecución del programa y esperar a que el usuario presione Enter para continuar. 
+Esto se utiliza para dar al usuario tiempo para leer los mensajes o resultados mostrados en la consola antes'''
 def pausar():
     console.input("\n[bold cyan]Presione Enter para continuar...[/bold cyan]")
 
-
+'''La función existe_pais() se encarga de verificar si un país con un nombre específico ya existe en la lista de países. 
+Toma la lista de países y el nombre del país a buscar como argumentos, normaliza el nombre buscado y los nombres de los países en la lista, 
+y devuelve True si encuentra una coincidencia exacta, o False si no encuentra ningún país con ese nombre.'''
 def existe_pais(paises, nombre):
     nombre_buscado = normalizar_texto(nombre).lower()
     return any(normalizar_texto(pais["nombre"]).lower() == nombre_buscado for pais in paises)
 
-
+'''La función buscar_pais_exacto() se encarga de buscar un país con un nombre específico en la lista de países. 
+Toma la lista de países y el nombre del país a buscar como argumentos, y entra en un bucle que continúa hasta que encuentra un país con el 
+nombre exacto o el usuario decide salir. Dentro del bucle, normaliza el nombre buscado y los nombres de los países en la lista, y si encuentra una coincidencia
+ exacta, devuelve el país encontrado.'''
 def buscar_pais_exacto(paises, nombre):
     while True:
         nombre_buscado = normalizar_texto(nombre).lower()
@@ -215,7 +256,9 @@ def buscar_pais_exacto(paises, nombre):
         if nombre.lower() == "salir" or nombre.lower() == "s":
             return None
 
-
+'''La función buscar_pais_por_nombre() se encarga de buscar países que contengan un texto específico en su nombre.
+Toma la lista de países y el texto a buscar como argumentos, normaliza el texto buscado y los nombres de los países en la lista, 
+y devuelve una lista de países que contienen el texto buscado en su nombre.'''
 def buscar_pais_por_nombre(paises, nombre):
     nombre_buscado = normalizar_texto(nombre).lower()
     resultados = []
@@ -224,7 +267,13 @@ def buscar_pais_por_nombre(paises, nombre):
             resultados.append(pais)
     return resultados
 
-
+'''La función agregar_pais() se encarga de agregar un nuevo país a la lista de países. Toma la lista de países como argumento, 
+muestra un título para indicar que se está agregando un país, y luego solicita al usuario que ingrese el nombre, población, 
+superficie y continente del nuevo país.La función realiza varias validaciones, como verificar que el nombre del país no esté vacío, que
+el país no exista ya en la lista, que la población y superficie sean números enteros válidos, y que el continente sea válido. 
+Si alguna de las validaciones falla, se muestra un mensaje de error y se solicita al usuario que ingrese nuevamente el dato correspondiente. 
+Si todas las validaciones son exitosas, se crea un diccionario con los datos del nuevo país, se agrega a la lista de países, 
+se guarda la lista actualizada en el archivo CSV, y se muestra un mensaje de éxito.'''
 def agregar_pais(paises):
     mostrar_titulo("Agregar pais")
 
@@ -279,7 +328,10 @@ def agregar_pais(paises):
         mostrar_advertencia(str(e))
         return False
 
-
+'''La función actualizar_pais() se encarga de actualizar los datos de un país existente en la lista de países. Toma la lista de países como argumento, 
+muestra un título para indicar que se está actualizando un país, y luego solicita al usuario que ingrese el nombre del país a actualizar. 
+Si el país no se encuentra, se muestra una advertencia y se vuelve al menú principal. Si el país se encuentra, se muestra la información del país y 
+se solicita al usuario que elija qué dato desea modificar (población, superficie o ambos).'''
 def actualizar_pais(paises):
     mostrar_titulo("Actualizar pais")
     try:
@@ -316,20 +368,24 @@ def actualizar_pais(paises):
         mostrar_advertencia(str(e))
         return False
 
-
+'''La función filtrar_por_continente() se encarga de filtrar la lista de países por un continente específico. 
+Toma la lista de países y el continente a filtrar como argumentos, normaliza el nombre del continente buscado y los nombres de los 
+continentes en la lista de países, y devuelve una lista de países que pertenecen al continente especificado. 
+Esto permite al usuario obtener una lista de países que pertenecen a un continente específico, facilitando la búsqueda y análisis de los datos.'''
 def filtrar_por_continente(paises, continente):
     continente_buscado = normalizar_texto(continente).lower()
     return [pais for pais in paises if normalizar_texto(pais["continente"]).lower() == continente_buscado]
 
-
+'''La función filtrar_por_rango_poblacion() se encarga de filtrar la lista de países por un rango específico de población.'''
 def filtrar_por_rango_poblacion(paises, minimo, maximo):
     return [pais for pais in paises if minimo <= pais["poblacion"] <= maximo]
 
-
+'''La función filtrar_por_rango_superficie() se encarga de filtrar la lista de países por un rango específico de superficie.'''
 def filtrar_por_rango_superficie(paises, minimo, maximo):
     return [pais for pais in paises if minimo <= pais["superficie"] <= maximo]
 
-
+'''La función ordenar_paises() se encarga de ordenar la lista de países según un criterio específico (nombre, población o superficie) 
+y un orden (ascendente o descendente). utiliza un algoritmo de ordenamiento de burbuja para ordenar la lista de países según el criterio y orden especificados.'''
 def ordenar_paises(paises, criterio, as_des):
     n = len(paises)
     paises_ordenados = list(paises)
@@ -420,7 +476,10 @@ def obtener_estadisticas(paises):
         "cantidad_por_continente": cantidad_por_continente,
     }
 
-
+'''La función formatear_pais() se encarga de formatear la información de un país en una cadena de texto con un formato específico. 
+Toma un diccionario que representa un país como argumento, formatea la población y superficie con separ de miles, y devuelve una cadena de texto 
+que muestra el nombre del país, su población, superficie y continente. Esto se utiliza para mostrar la información de los países de manera clara y 
+legible en la consola'''
 def formatear_pais(pais):
     poblacion = f"{pais['poblacion']:,}".replace(",", ".")
     superficie = f"{pais['superficie']:,}".replace(",", ".")
@@ -431,7 +490,9 @@ def formatear_pais(pais):
         f"Continente: {pais['continente']}"
     )
 
-
+'''La función mostrar_paises() se encarga de mostrar una lista de países en formato de tabla utilizando la biblioteca rich. 
+Toma una lista de países y un título opcional como argumentos, y muestra la información de los países en una tabla con columnas para el 
+número, nombre, población, superficie y continente. Si la lista de países está vacía, muestra una advertencia indicando que no hay países para mostrar.'''
 def mostrar_paises(paises, titulo="Listado de paises"):
     mostrar_titulo(titulo)
     if not paises:
@@ -456,7 +517,9 @@ def mostrar_paises(paises, titulo="Listado de paises"):
 
     console.print(tabla)
 
-
+'''La función pedir_rango() se encarga de solicitar al usuario que ingrese un rango de valores, con mensajes personalizados para el valor mínimo y máximo.
+La función utiliza un bucle para solicitar ambos valores, asegurándose de que el valor mínimo sea menor o igual al valor máximo. 
+Si el usuario ingresa un valor mínimo mayor que el máximo, se muestra un mensaje de error y se solicita nuevamente.'''
 def pedir_rango(mensaje_minimo, mensaje_maximo):
     while True:
         minimo = pedir_entero(mensaje_minimo, 1)
@@ -465,7 +528,10 @@ def pedir_rango(mensaje_minimo, mensaje_maximo):
             return minimo, maximo
         mostrar_error("Error: el valor minimo no puede ser mayor que el maximo.")
 
-
+'''La función mostrar_estadisticas() se encarga de mostrar estadísticas sobre la lista de países, incluyendo el país con mayor población, 
+el país con menor población, el promedio de población, el promedio de superficie y la cantidad de países por continente.
+Utiliza la función obtener_estadisticas() para calcular estas estadísticas, y luego muestra la información utilizando paneles y 
+tablas de la biblioteca rich para mejorar la presentación visual. Si no hay datos para calcular las estadísticas, muestra una advertencia al usuario.'''
 def mostrar_estadisticas(paises):
     estadisticas = obtener_estadisticas(paises)
     mostrar_titulo("Estadisticas")
@@ -511,7 +577,8 @@ def mostrar_estadisticas(paises):
     pausar()
     limpiar_pantalla()
 
-
+'''La función menu_busqueda() se encarga de mostrar un menú para buscar países por nombre. Toma la lista de países como argumento, 
+muestra un título para indicar que se está realizando una búsqueda, y luego solicita al usuario que ingrese el nombre o parte del nombre del país a buscar.'''
 def menu_busqueda(paises):
     mostrar_titulo("Buscar pais por nombre")
     try:
@@ -526,7 +593,8 @@ def menu_busqueda(paises):
         mostrar_advertencia(str(e))
     
 
-
+'''La función menu_filtros() se encarga de mostrar un menú para filtrar países por diferentes criterios, como continente, 
+rango de población o rango de superficie.'''
 def menu_filtros(paises):
     while True:
         mostrar_titulo("[bold blue]Filtros[/bold blue]")
@@ -573,7 +641,11 @@ def menu_filtros(paises):
                 break
         except SaliendoAlMenuError as e:
             mostrar_advertencia(str(e))
-
+'''La función menu_ordenamientos() se encarga de mostrar un menú para ordenar la lista de países por diferentes criterios, como nombre, 
+población o superficie, y en orden ascendente o descendente. Toma la lista de países como argumento, muestra un título para indicar 
+que se está realizando un ordenamiento, y luego solicita al usuario que elija el criterio de ordenamiento y el orden (ascendente o descendente).
+Luego, utiliza la función ordenar_paises() para ordenar la lista de países según las opciones seleccionadas, y muestra la lista ordenada utilizando 
+la función mostrar_paises(). Si el usuario elige salir, se lanza una excepción para volver al menú principal.'''
 def menu_ordenamientos(paises):
     try:
         while True:
@@ -610,7 +682,9 @@ def menu_ordenamientos(paises):
         pausar()
         limpiar_pantalla()
 
-
+'''La función mostrar_menu_principal() se encarga de mostrar el menú principal del programa utilizando la biblioteca questionary. 
+Muestra un título para indicar que se está en la gestión de datos de países, y luego presenta una lista de opciones para que el usuario elija, 
+como mostrar todos los países, agregar un país, actualizar datos, buscar por nombre, filtrar, ordenar, mostrar estadísticas o salir.'''
 def mostrar_menu_principal():
     mostrar_titulo("Gestion de Datos de Paises")
     opcion = questionary.select(
@@ -620,7 +694,10 @@ def mostrar_menu_principal():
             ).ask()
     return opcion
 
-
+'''La función main() es la función principal del programa que se encarga de cargar los datos de los países, mostrar el menú principal, 
+y ejecutar las acciones correspondientes según la opción seleccionada por el usuario.Primero, carga los países desde el archivo CSV 
+utilizando la función cargar_paises(), y si se encuentran líneas inválidas, muestra una advertencia al usuario. 
+Luego, entra en un bucle que muestra el menú principal y espera a que el usuario seleccione una opción.'''
 def main():
     paises, lineas_invalidas = cargar_paises()
 
@@ -660,6 +737,8 @@ def main():
         elif opcion == "Salir":
             mostrar_info("Programa finalizado.")
             break
-
+'''La función limpiar_pantalla() se encarga de limpiar la consola utilizando el método clear() del objeto console de la biblioteca rich. 
+Esto se utiliza para mejorar la experiencia del usuario al mostrar solo la información relevante en cada momento, evitando
+que la consola se llene de información acumulada.'''
 def limpiar_pantalla():
     console.clear()
