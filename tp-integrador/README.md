@@ -46,7 +46,16 @@ Argentina,45376763,2780400,America
 ## Requisitos
 
 - Python 3.x
-- Se requiere instalar librerias externas, se debe instalar pip para poder utilizar rich.
+- pip
+- Librerias externas:
+  - `rich`
+  - `questionary`
+
+Instalacion sugerida:
+
+```bash
+pip install rich questionary
+```
 
 ## Instrucciones de uso
 
@@ -63,7 +72,7 @@ python3 main_paises.py
 Si se ejecuta desde otra carpeta:
 
 ```bash
-python3 "/Users/robertomoisesjaimes/Documents/utn/python/tp-integrador/main_paises.py"
+python3 "/Users/robertomoisesjaimes/Documents/utn/python/tpi-jaimes-vega/tp-integrador/main_paises.py"
 ```
 
 ## Funcionalidades implementadas
@@ -125,8 +134,9 @@ Promedio de superficie: 2808332.56
 - Se utilizo el modulo `csv` para leer y escribir el archivo de datos.
 - Se utilizo `os.path` para ubicar el archivo CSV en la misma carpeta del proyecto.
 - El programa fue dividido en un archivo principal y un archivo de funciones para mejorar la modularidad.
-- Se implementaron funciones como normalizar_texto para validaciones de caracteres especiales y busqueda exacta
-- Se investigó y utilizó libreria rich y unicode data.
+- Se implementaron funciones como `normalizar_texto` para validar y normalizar entradas.
+- Se utilizaron las librerias `rich` y `questionary` para mejorar la experiencia en consola.
+- Los ordenamientos se resolvieron con logica propia sobre la lista de paises.
 
 ## Participacion de integrantes
 
