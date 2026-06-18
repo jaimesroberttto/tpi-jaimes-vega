@@ -524,6 +524,7 @@ def menu_busqueda(paises):
         mostrar_paises(resultados, "Resultados de la busqueda")
     except SaliendoAlMenuError as e:
         mostrar_advertencia(str(e))
+    
 
 
 def menu_filtros(paises):
