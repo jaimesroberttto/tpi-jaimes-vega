@@ -560,11 +560,11 @@ def mostrar_estadisticas(paises):
     tabla_resumen.add_column("Valor", justify="right", style="bold white")
     tabla_resumen.add_row(
         "Promedio de poblacion",
-        f"{estadisticas['promedio_poblacion']:, .2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+        f"{estadisticas['promedio_poblacion']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
     )
     tabla_resumen.add_row(
         "Promedio de superficie",
-        f"{estadisticas['promedio_superficie']:, .2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+        f"{estadisticas['promedio_superficie']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
     )
     console.print(tabla_resumen)
 
