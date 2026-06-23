@@ -22,15 +22,14 @@ Desarrollar una aplicacion en Python que permita:
 
 El proyecto contiene los siguientes archivos:
 
-- `tp-integrador/main_paises.py`: menu principal del sistema.
-- `tp-integrador/funciones_paises.py`: funciones auxiliares, validaciones, manejo de CSV, filtros, ordenamientos y estadisticas.
-- `tp-integrador/paises.csv`: dataset base con los paises.
+- `main_paises.py`: menu principal del sistema.
+- `funciones_paises.py`: funciones auxiliares, validaciones, manejo de CSV, filtros, ordenamientos y estadisticas.
+- `paises.csv`: dataset base con los paises.
 - `README.md`: descripcion general e instrucciones de uso.
-- `tp-integrador/Documentacion academica.pdf`: explicación técnica de los conceptos utilizados y proceso de realización del código.
 
 ## Datos del CSV
 
-Cada diccionario de pais se almacena con los siguientes campos en un csv separado por comas:
+Cada pais se almacena con los siguientes campos:
 
 - `nombre`
 - `poblacion`
@@ -46,27 +45,24 @@ Argentina,45376763,2780400,America
 ## Requisitos
 
 - Python 3.x
-- pip
-- Librerias externas:
-  - `rich`
-  - `questionary`
-
-Instalacion sugerida:
-
-```bash
-pip install rich questionary
-```
+- No requiere librerias externas.
 
 ## Instrucciones de uso
 
-1. Abrir una terminal en la carpeta `tp-integrador`.
+1. Abrir una terminal en la carpeta del proyecto.
 2. Ejecutar el archivo principal.
-3. Elegir una opcion del menu utilizando las flechas y dando enter.
+3. Elegir una opcion del menu.
 
 Comando de ejecucion:
 
 ```bash
-python3 tp-integrador/main_paises.py
+python3 main_paises.py
+```
+
+Si se ejecuta desde otra carpeta:
+
+```bash
+python3 "/Users/robertomoisesjaimes/Documents/utn/python/tp-integrador/main_paises.py"
 ```
 
 ## Funcionalidades implementadas
@@ -76,12 +72,12 @@ El sistema permite:
 1. Mostrar todos los paises cargados.
 2. Agregar un pais con validacion de campos.
 3. Actualizar poblacion y superficie de un pais.
-4. Buscar un pais con coincidencia parcial.
+4. Buscar un pais por nombre con coincidencia parcial.
 5. Filtrar paises por:
    - continente
    - rango de poblacion
    - rango de superficie
-6. Ordenar paises de forma ascendente o descendente por:
+6. Ordenar paises por:
    - nombre
    - poblacion
    - superficie
@@ -97,7 +93,6 @@ El sistema permite:
 El programa incluye:
 
 - Validacion para evitar campos vacios.
-- Validacion para tildes y caracteres especiales.
 - Validacion de numeros enteros positivos en poblacion y superficie.
 - Mensajes claros cuando una busqueda no arroja resultados.
 - Control de rangos invalidos en filtros.
@@ -128,9 +123,6 @@ Promedio de superficie: 2808332.56
 - Se utilizo el modulo `csv` para leer y escribir el archivo de datos.
 - Se utilizo `os.path` para ubicar el archivo CSV en la misma carpeta del proyecto.
 - El programa fue dividido en un archivo principal y un archivo de funciones para mejorar la modularidad.
-- Se implementaron funciones como `normalizar_texto` para validar y normalizar entradas.
-- Se utilizaron las librerias `rich` y `questionary` para mejorar la experiencia en consola.
-- Los ordenamientos se resolvieron con logica propia sobre la lista de paises.
 
 ## Participacion de integrantes
 
@@ -139,8 +131,8 @@ Promedio de superficie: 2808332.56
 
 ## Link del video
 
-- Video demostrativo: __________________
+- Video demostrativo: https://drive.google.com/file/d/11QwaSEfUJI_7m_8Sd-uw_0sIv3WrJiZX/view?usp=sharing
 
 ## Link de la documentacion en PDF
 
-- Informe PDF: __________________
+- Informe PDF: https://drive.google.com/file/d/1GlYHPikZd9AiSNiCgZIQxv4H280JBOtQ/view?usp=sharing
