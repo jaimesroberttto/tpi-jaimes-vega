@@ -131,8 +131,8 @@ Promedio de superficie: 2808332.56
 
 ## Link del video
 
-- Video demostrativo: __________________
+- Video demostrativo: https://drive.google.com/file/d/11QwaSEfUJI_7m_8Sd-uw_0sIv3WrJiZX/view?usp=sharing
 
 ## Link de la documentacion en PDF
 
-- Informe PDF: __________________
+- Informe PDF: https://drive.google.com/file/d/1GlYHPikZd9AiSNiCgZIQxv4H280JBOtQ/view?usp=sharing
